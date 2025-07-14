@@ -25,14 +25,43 @@ __all__ = [
 ]
 
 # Placeholder classes (to be implemented)
+#Initialize the chess game state.
 class ChessGame:
-    """Main chess game class that manages game state."""
-    pass
 
+    def __init__(self):
+        self.board = chess.Board()
+
+
+#Manages game flow and state transitions.
 class GameManager:
-    """Manages game flow and state transitions."""
-    pass
 
+    def __init__(self):
+        self.current_game = ChessGame()
+        self.move_validator = MoveValidator()
+
+    def start_game(self):
+        while not self.current_game.board.is_game_over():
+            self.move_validator.validate_move()
+            
+#Validates chess moves and game rules.
 class MoveValidator:
-    """Validates chess moves and game rules."""
-    pass 
+    
+    def __init__(self):
+        self.current_game = ChessGame()
+
+    def validate_move(self):
+        print(self.current_game.board)
+        self.move = input("Enter your move in UCI format (e.g., e2e4): ")
+        try:
+            self.user_move = chess.Move.from_uci(self.move)
+            # Check if the move is legal
+            if self.user_move in self.current_game.board.legal_moves:
+                self.current_game.board.push(self.user_move)
+            else:
+                print("Illegal move, try again.")
+        # Handle invalid move format
+        except ValueError:
+            print("Invalid move format, please use UCI format.")
+
+
+GameManager().start_game()  # Start the game loop
