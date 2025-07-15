@@ -30,10 +30,10 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer C: AI Framework & AI Core Logic
 
-- [ ] **1.C.1 AI Interface Definition:** Create base class `BaseChessAI`.
-- [ ] **1.C.2 "Easy" AI Implementation (Simple Minimax):** Create `EasyAI` with basic evaluation and low-depth Minimax.
-- [ ] **1.C.3 "Medium" AI Implementation (Minimax with Alpha-Beta):** Create `MediumAI` with more sophisticated evaluation and Alpha-Beta Pruning.
-- [ ] **1.C.4 AI Testing:** Write tests for AI functions.
+- [x] **1.C.1 AI Interface Definition:** Create base class `BaseChessAI`.
+- [x] **1.C.2 "Easy" AI Implementation (Simple Minimax):** Create `EasyAI` with basic evaluation and low-depth Minimax.
+- [x] **1.C.3 "Medium" AI Implementation (Minimax with Alpha-Beta):** Create `MediumAI` with more sophisticated evaluation and Alpha-Beta Pruning.
+- [x] **1.C.4 AI Testing:** Write tests for AI functions.
 
 ---
 
