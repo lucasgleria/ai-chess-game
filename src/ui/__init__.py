@@ -18,27 +18,14 @@ except ImportError:
 __version__ = "1.0.0"
 __author__ = "Chess Game Team: Insert your name here"
 
-# Export main classes (to be implemented)
+# Export main classes 
+
+from .board_renderer import BoardRenderer
+from .asset_manager import AssetManager
+from .audio_manager import AudioManager
+
 __all__ = [
     "BoardRenderer",
-    "UIManager",
-    "Button",
-    "Menu"
+    "AssetManager",
+    "AudioManager"
 ]
-
-# Placeholder classes (to be implemented)
-class BoardRenderer:
-    """Renders the chess board and pieces on screen."""
-    pass
-
-class UIManager:
-    """Manages UI state and user interactions."""
-    pass
-
-class Button:
-    """UI button component."""
-    pass
-
-class Menu:
-    """Menu system for the game."""
-    pass 

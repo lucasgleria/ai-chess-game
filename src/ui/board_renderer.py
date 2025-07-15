@@ -32,7 +32,7 @@ class BoardRenderer:
             ["white_rook", "white_knight", "white_bishop", "white_queen", "white_king", "white_bishop", "white_knight", "white_rook"]
         ]
         
-        self.selected_square = None  # No píece selected initially
+        self.selected_square = None  # No piece selected initially
 
     def draw_board(self):
         
@@ -62,9 +62,9 @@ class BoardRenderer:
                         
                 # Draws selected square highlight
                 if self.selected_square == (row, col):
-                    pygame.draw.rect(self.screen, (255, 255, 0), rect, 4)  # amarelo, 4px de borda
+                    pygame.draw.rect(self.screen, (255, 255, 0), rect, 4)  # yellow, 4px border
                     
-        # Se estiver arrastando uma peça, desenha ela na posição atual do mouse
+        # If dragging a piece, draw it at the current mouse position
         if self.dragging_piece and self.asset_manager:
             image = self.asset_manager.get_piece(self.dragging_piece)
             if image:
@@ -93,7 +93,7 @@ class BoardRenderer:
         if piece:
             self.selected_square = (row, col)
             self.dragging_piece = piece
-            self.test_board[row][col] = None  # remove temporary piece from the board
+            self.test_board[row][col] = None  # temporarily remove the piece from the board
             self.dragging_offset = (mouse_pos[0] % self.square_size, mouse_pos[1] % self.square_size)
 
     def end_drag(self, mouse_pos):
@@ -101,10 +101,10 @@ class BoardRenderer:
             new_row = mouse_pos[1] // self.square_size
             new_col = mouse_pos[0] // self.square_size
 
-            # Atualize the board with the new position of the piece
+            # Update the board with the new position of the piece
             self.test_board[new_row][new_col] = self.dragging_piece
 
-            # Erase the dragging state
+            # Clear the dragging state
             self.dragging_piece = None
             self.selected_square = None
         

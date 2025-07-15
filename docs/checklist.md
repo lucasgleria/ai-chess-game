@@ -7,8 +7,8 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ## Phase 0: Setup and Initial Planning (**All Together**)
 
-- [ ] **0.1 "Hello Pygame" Prototype:** Each developer creates a basic script to test the Pygame environment.
-- [ ] **0.2 Internal API Design (Overview):** Discussion and definition of main classes and interactions between modules.
+- [x] **0.1 "Hello Pygame" Prototype:** Each developer creates a basic script to test the Pygame environment.
+- [x] **0.2 Internal API Design (Overview):** Discussion and definition of main classes and interactions between modules.
 
 ---
 
@@ -16,17 +16,17 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer A: Core Game Logic & Board Representation
 
-- [ ] **1.A.1 Set up python-chess:** Encapsulate `chess.Board()` and basic game methods.
-- [ ] **1.A.2 Validation and Game State:** Implement methods to check move legality and final game state.
-- [ ] **1.A.3 Move Representation:** Generate legal moves and convert formats.
-- [ ] **1.A.4 Unit Tests:** Write tests for game logic.
+- [x] **1.A.1 Set up python-chess:** Encapsulate `chess.Board()` and basic game methods.
+- [x] **1.A.2 Validation and Game State:** Implement methods to check move legality and final game state.
+- [x] **1.A.3 Move Representation:** Generate legal moves and convert formats.
+- [x] **1.A.4 Unit Tests:** Write tests for game logic.
 
 ### Developer B: Visuals, User Interaction & Audio
 
-- [ ] **1.B.1 Basic Pygame Setup:** Set up window, main loop, and sizes.
-- [ ] **1.B.2 Asset Loading and Drawing:** Load piece PNGs and draw board/pieces.
-- [ ] **1.B.3 Mouse Event System:** Detect clicks and drag/drop, and visual selection feedback.
-- [ ] **1.B.4 Basic Audio Logic:** Set up mixer and load/test a simple sound.
+- [x] **1.B.1 Basic Pygame Setup:** Set up window, main loop, and sizes.
+- [x] **1.B.2 Asset Loading and Drawing:** Load piece PNGs and draw board/pieces.
+- [x] **1.B.3 Mouse Event System:** Detect clicks and drag/drop, and visual selection feedback.
+- [x] **1.B.4 Basic Audio Logic:** Set up mixer and load/test a simple sound.
 
 ### Developer C: AI Framework & AI Core Logic
 

@@ -16,16 +16,16 @@ def main():
     pygame.init()  # Initializes Pygame
     pygame.mixer.init()  # Initializes the audio mixer
 
-    # Creates the main game window
+    # Create the main game window
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("AI Chess Game")
 
     # Clock to control the FPS
     clock = pygame.time.Clock()
 
-    audio_manager = AudioManager()  # ⬅️ instancia o AudioManager
-    asset_manager = AssetManager(square_size=SQUARE_SIZE)  # ⬅️ instancia o AssetManager
-    board_renderer = BoardRenderer(screen, SQUARE_SIZE, asset_manager, audio_manager)  # ⬅️ passa ele para o renderizador
+    audio_manager = AudioManager()  # Instantiates the AudioManager
+    asset_manager = AssetManager(square_size=SQUARE_SIZE)  # Instantiates the AssetManager
+    board_renderer = BoardRenderer(screen, SQUARE_SIZE, asset_manager, audio_manager)  # Passes it to the renderer
 
     running = True
     while running:
