@@ -6,25 +6,25 @@
 
 ## Phase 0: Setup and Initial Planning (All Together)
 
-- [ ] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
-- [ ] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
+- [X] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
+- [X] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
 
 ---
 
 ## Phase 1: Independent Foundation
 
-- [ ] **1.B.1 Basic Pygame Setup:**
+- [X] **1.B.1 Basic Pygame Setup:**
   - Set up the Pygame window, title, and main loop.
   - Define screen and board square sizes.
-- [ ] **1.B.2 Asset Loading and Drawing:**
+- [X] **1.B.2 Asset Loading and Drawing:**
   - Implement an `AssetManager` function/class to load all piece PNG sprites (12 images) and any custom board image.
   - Create a `BoardRenderer` class (or similar) responsible for drawing the base board (light/dark squares) and the pieces in their positions.
-- [ ] **1.B.3 Mouse Event System:**
+- [X] **1.B.3 Mouse Event System:**
   - Implement mouse click detection logic:
     - Identify which board square was clicked.
     - Detect "drag and drop" (click, drag, release).
   - **Selection Visual Feedback:** When a piece is clicked, draw a visual highlight on the selected square.
-- [ ] **1.B.4 Basic Audio Logic:**
+- [X] **1.B.4 Basic Audio Logic:**
   - Set up the Pygame mixer.
   - Load and test a simple sound (e.g., for a click).
 
