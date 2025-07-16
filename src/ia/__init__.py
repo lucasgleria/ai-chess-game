@@ -5,7 +5,7 @@ This module contains the AI components:
 - BaseChessAI: Abstract base class for all AI implementations
 - EasyAI: Simple Minimax AI
 - MediumAI: Medium difficulty AI with Alpha-Beta pruning
-- StockfishAI: Integration with Stockfish engine
+- StockfishAI: Integration with Stockfish engine (to be implemented)
 """
 
 # AI imports
@@ -19,30 +19,15 @@ except ImportError:
 __version__ = "1.0.0"
 __author__ = "Chess Game Team: Insert your name here"
 
-# Export main classes (to be implemented)
+# # Export main classes
+from .ai_base import BaseChessAI
+from .easy_ai import EasyAI
+from .medium_ai import MediumAI
+# from .stockfish_ai import StockfishAI  # quando implementado
+
 __all__ = [
     "BaseChessAI",
     "EasyAI",
-    "MediumAI", 
-    "StockfishAI"
-]
-
-# Placeholder classes (to be implemented)
-class BaseChessAI:
-    """Abstract base class for all chess AI implementations."""
-    
-    def get_best_move(self, board):
-        """Get the best move for the given board position."""
-        raise NotImplementedError("Subclasses must implement get_best_move")
-
-class EasyAI(BaseChessAI):
-    """Simple AI using basic Minimax algorithm."""
-    pass
-
-class MediumAI(BaseChessAI):
-    """Medium difficulty AI using Minimax with Alpha-Beta pruning."""
-    pass
-
-class StockfishAI(BaseChessAI):
-    """AI using Stockfish chess engine."""
-    pass 
+    "MediumAI",
+    # "StockfishAI"
+] 
