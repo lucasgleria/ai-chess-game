@@ -6,28 +6,28 @@
 
 ## Phase 0: Setup and Initial Planning (All Together)
 
-- [ ] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
-- [ ] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
+- [x] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
+- [x] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
 
 ---
 
 ## Phase 1: Independent Foundation
 
-- [ ] **1.A.1 Set up python-chess:**
+- [x] **1.A.1 Set up python-chess:**
   - Create a `ChessGame` class (or similar) that encapsulates a `chess.Board()` object.
   - Implement methods to start a new game (`new_game()`).
   - Add methods to apply a move (`make_move(move_str)` or `make_move(from_sq, to_sq)`).
   - Add a method to undo a move (`undo_move()`).
 
-- [ ] **1.A.2 Validation and Game State:**
+- [x] **1.A.2 Validation and Game State:**
   - Implement methods to check if a move is legal (`is_legal_move(move)`).
   - Implement methods to check the game state (`is_checkmate()`, `is_stalemate()`, `is_game_over()`, `outcome()`).
 
-- [ ] **1.A.3 Move Representation:**
+- [x] **1.A.3 Move Representation:**
   - Ensure the class can generate all legal moves for the current position (`get_legal_moves()`).
   - Convert moves between formats (e.g., `e2e4` to `chess.Move` object).
 
-- [ ] **1.A.4 Unit Tests:** Write tests for all game logic functions (validate moves, check checkmate, etc.) to ensure robustness.
+- [x] **1.A.4 Unit Tests:** Write tests for all game logic functions (validate moves, check checkmate, etc.) to ensure robustness.
 
 ---
 
