@@ -34,18 +34,18 @@
 
 ## Phase 2: Integration and Essential Features
 
-- [ ] **2.C.1 Improve Evaluation Functions:**  
+- [x] **2.C.1 Improve Evaluation Functions:**  
   Collaborate with Developer A to refine the "Medium" AI evaluation function based on testing and gameplay.  
   Add more factors such as pawn structure, piece activity, etc.
 
-- [ ] **2.C.2 AI Optimizations:**  
+- [x] **2.C.2 AI Optimizations:**  
   Ensure that Alpha-Beta Pruning is working efficiently.  
   Consider additional optimizations (e.g., transposition table - if time permits and more performance is needed).
 
-- [ ] **2.C.3 Dynamic Difficulty Creation:**  
+- [x] **2.C.3 Dynamic Difficulty Creation:**  
   Allow the "Easy" and "Medium" AIs to have difficulty parameters (e.g., search depth) that can be adjusted.
 
-- [ ] **2.C.4 Game Testing:**  
+- [x] **2.C.4 Game Testing:**  
   Play extensively against the "Easy" and "Medium" AIs to identify bugs and balance the difficulty.
 
 ---

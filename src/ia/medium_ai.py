@@ -1,5 +1,6 @@
 import chess
 from ia.ai_base import BaseChessAI
+import logging
 
 class MediumAI(BaseChessAI):
     def __init__(self, depth=2):
@@ -49,7 +50,7 @@ class MediumAI(BaseChessAI):
             return min_eval
 
     def evaluate(self, board):
-        # Evaluation: material + center control + basic king safety
+        # Evaluation: material + center control + basic king safety + pawn structure + mobility
         piece_values = {
             chess.PAWN: 1,
             chess.KNIGHT: 3.2,
@@ -69,6 +70,14 @@ class MediumAI(BaseChessAI):
         # King safety: penalizes exposed king (rank 1/8 without pawns)
         value += self.king_safety(board, chess.WHITE)
         value -= self.king_safety(board, chess.BLACK)
+        # Pawn structure: penalidades maiores
+        pawn_structure_white = self.pawn_structure(board, chess.WHITE)
+        pawn_structure_black = self.pawn_structure(board, chess.BLACK)
+        value -= pawn_structure_white  # penalidade para brancas
+        value += pawn_structure_black  # penalidade para pretas
+        # Mobility: apenas o lado a jogar, peso reduzido
+        mobility = self.mobility(board, board.turn)
+        value += 0.05 * mobility
         return value
 
     def king_safety(self, board, color):
@@ -84,4 +93,42 @@ class MediumAI(BaseChessAI):
             sq = chess.square(file, rank + (1 if color == chess.WHITE else -1))
             if board.piece_at(sq) and board.piece_at(sq).piece_type == chess.PAWN and board.piece_at(sq).color == color:
                 pawn_shield += 0.5
-        return pawn_shield 
+        return pawn_shield
+
+    def pawn_structure(self, board, color):
+        pawns = board.pieces(chess.PAWN, color)
+        files = [chess.square_file(sq) for sq in pawns]
+        penalty = 0
+        # Isolated pawns
+        for sq in pawns:
+            file = chess.square_file(sq)
+            is_isolated = True
+            for adj in [file - 1, file + 1]:
+                if 0 <= adj < 8:
+                    if any(chess.square_file(p) == adj for p in pawns):
+                        is_isolated = False
+            if is_isolated:
+                penalty += 0.5  # penalidade maior
+        # Doubled pawns
+        for f in set(files):
+            count = files.count(f)
+            if count > 1:
+                penalty += 0.4 * (count - 1)  # penalidade maior
+        # Blocked pawns
+        for sq in pawns:
+            rank = chess.square_rank(sq)
+            file = chess.square_file(sq)
+            forward = rank + (1 if color == chess.WHITE else -1)
+            if 0 <= forward < 8:
+                front_sq = chess.square(file, forward)
+                if board.piece_at(front_sq):
+                    penalty += 0.3  # penalidade maior
+        return penalty
+
+    def mobility(self, board, color):
+        # Conta o número de movimentos legais para a cor dada sem alterar board.turn permanentemente
+        original_turn = board.turn
+        board.turn = color
+        moves = len(list(board.legal_moves))
+        board.turn = original_turn
+        return moves 

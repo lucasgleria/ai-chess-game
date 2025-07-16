@@ -55,10 +55,10 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer C (Main Focus: AI Refinement and Testing)
 
-- [ ] **2.C.1 Improve Evaluation Functions:** Refine the "Medium" AI evaluation function.
-- [ ] **2.C.2 AI Optimizations:** Optimize Alpha-Beta Pruning.
-- [ ] **2.C.3 Dynamic Difficulty Creation:** Allow adjustment of difficulty parameters for "Easy" and "Medium" AIs.
-- [ ] **2.C.4 Game Testing:** Extensively test "Easy" and "Medium" AIs.
+- [x] **2.C.1 Improve Evaluation Functions:** Refine the "Medium" AI evaluation function.
+- [x] **2.C.2 AI Optimizations:** Optimize Alpha-Beta Pruning.
+- [x] **2.C.3 Dynamic Difficulty Creation:** Allow adjustment of difficulty parameters for "Easy" and "Medium" AIs.
+- [x] **2.C.4 Game Testing:** Extensively test "Easy" and "Medium" AIs.
 
 ---
 
