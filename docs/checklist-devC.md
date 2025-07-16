@@ -6,28 +6,28 @@
 
 ## Phase 0: Setup and Initial Planning (All Together)
 
-- [ ] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
-- [ ] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
+- [x] **0.1 "Hello Pygame" Prototype:** Edit the main.py file to run your first hello world in pygame.
+- [x] **0.2 Internal API Design (Overview):** Participate in the discussion and definition of the main classes and interactions.
 
 ---
 
 ## Phase 1: Independent Foundation
 
-- [ ] **1.C.1 AI Interface Definition:**  
+- [x] **1.C.1 AI Interface Definition:**  
   Create an abstract base class `BaseChessAI` with a `get_best_move(board)` method. All AIs (Easy, Medium, Hard) will inherit from this base.
 
-- [ ] **1.C.2 "Easy" AI Implementation (Simple Minimax):**  
+- [x] **1.C.2 "Easy" AI Implementation (Simple Minimax):**  
   Create the `EasyAI` class that inherits from `BaseChessAI`.  
   Implement a very basic evaluation function (e.g., only material counting).  
   Implement the Minimax algorithm with a very low search depth (1 or 2 ply).  
   Use `board.legal_moves` to generate the search tree children.
 
-- [ ] **1.C.3 "Medium" AI Implementation (Minimax with Alpha-Beta):**  
+- [x] **1.C.3 "Medium" AI Implementation (Minimax with Alpha-Beta):**  
   Create the `MediumAI` class that inherits from `BaseChessAI`.  
   Implement a slightly more sophisticated evaluation function (add center control, basic king safety).  
   Implement the Minimax algorithm with Alpha-Beta Pruning with a slightly higher search depth (2 or 3 ply).
 
-- [ ] **1.C.4 AI Testing:**  
+- [x] **1.C.4 AI Testing:**  
   Create tests to ensure that the AIs return moves and that the evaluation functions work as expected.
 
 ---
