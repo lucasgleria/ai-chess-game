@@ -1,5 +1,5 @@
 import chess
-from ia.ai_base import BaseChessAI
+from src.ia.ai_base import BaseChessAI
 import logging
 
 class MediumAI(BaseChessAI):

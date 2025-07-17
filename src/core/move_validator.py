@@ -1,7 +1,7 @@
 """
 Validates chess moves and game rules.
 """
-from .chess_game import ChessGame
+from src.core.chess_game import ChessGame
 
 class MoveValidator:
     """
@@ -39,7 +39,7 @@ class MoveValidator:
         elif self.current_game.board.is_variant_draw():
             self.current_game.end_game("draw (variant-specific rule)")
             return True
-        else:
+        """else:
             move = input("Enter your move in UCI format (e.g., e2e4): ")
             if move == "undo":
                 if self.current_game.board.move_stack:
@@ -52,7 +52,7 @@ class MoveValidator:
                 if user_move and user_move in self.current_game.board.legal_moves:
                     self.current_game.board.push(user_move)
                 else:
-                    print("Illegal move, try again.")
+                    print("Illegal move, try again.")"""
         return False
 
     def _parse_move(self, move_str):
