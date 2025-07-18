@@ -27,8 +27,8 @@ class ChessGame:
         """
         Applies a move in UCI format (e.g., 'e2e4'). Returns True if the move is legal and applied.
         """
-        move = self.uci_to_move(move_str)
-        if move and move in self.board.legal_moves:
+        move = chess.Move.from_uci(move_str)
+        if move:
             self.board.push(move)
             return True
         return False

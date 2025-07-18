@@ -2,13 +2,14 @@
 
 import pygame
 import sys
-from ui.board_renderer import BoardRenderer  # Imports the board rendering module
-from ui.asset_manager import AssetManager  # Imports the asset management module
-from ui.audio_manager import AudioManager  # Imports the audio management module
+from src.ui.board_renderer import BoardRenderer  # Imports the board rendering module
+from src.ui.asset_manager import AssetManager  # Imports the asset management module
+from src.ui.audio_manager import AudioManager  # Imports the audio management module
+from src.ia.easy_ai import EasyAI  # Imports the AI module
 
 # Set global constants for the game
-SCREEN_WIDTH = 800 
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 600 
+SCREEN_HEIGHT = 600
 BOARD_SIZE = 8      
 SQUARE_SIZE = SCREEN_WIDTH // BOARD_SIZE  
 
@@ -30,6 +31,26 @@ def main():
     running = True
     while running:
         screen.fill((30, 30, 30))
+        if board_renderer.turn:
+            # If it's the AI's turn, get the best move and apply it
+            ai = EasyAI(depth=2)
+            best_move = ai.get_best_move(board_renderer.chess_game.board)
+            if best_move:
+                move_uci = best_move.uci()  # e.g., "e2e4"
+                board_renderer.from_chess_square(move_uci)  # parse the move
+                piece = board_renderer.test_board[board_renderer.row_ai][board_renderer.col_ai]
+                if piece:
+                    ai_piece = piece
+                    board_renderer.test_board[board_renderer.row_ai][board_renderer.col_ai] = None  # temporarily remove the piece from the board
+
+                board_renderer.test_board[board_renderer.new_row_ai][board_renderer.new_col_ai] = ai_piece
+
+                board_renderer.chess_game.make_move(move_uci)
+                board_renderer.turn = False
+
+            else:
+                board_renderer.test_board[board_renderer.row][board_renderer.col] = board_renderer.dragging_piece
+        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

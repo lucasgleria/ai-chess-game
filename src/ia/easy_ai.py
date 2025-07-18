@@ -1,9 +1,14 @@
 import chess
-from ia.ai_base import BaseChessAI
+from src.ia.ai_base import BaseChessAI
+from src.ui.board_renderer import BoardRenderer
 
 class EasyAI(BaseChessAI):
     def __init__(self, depth=1):
         self.depth = depth
+        self.board_renderer = BoardRenderer(
+            screen=None,  # Placeholder, should be set to the actual Pygame screen
+            square_size=60,  # Example square size, adjust as needed
+        )
 
     def get_best_move(self, board):
         best_move = None
