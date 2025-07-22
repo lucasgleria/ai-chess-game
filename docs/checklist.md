@@ -48,9 +48,9 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer B (Main Focus: Interface Polish and UX)
 
-- [ ] **2.B.1 Drawing Refinements:** Improve piece drawing, highlight valid moves and last move.
-- [ ] **2.B.2 Status Messages:** Display turn, check, checkmate messages, etc.
-- [ ] **2.B.3 Piece Animation:** Implement smooth sliding animation.
+- [X] **2.B.1 Drawing Refinements:** Improve piece drawing, highlight valid moves and last move.
+- [X] **2.B.2 Status Messages:** Display turn, check, checkmate messages, etc.
+- [X] **2.B.3 Piece Animation:** Implement smooth sliding animation.
 - [ ] **2.B.4 Game Sounds:** Integrate sounds for moves, captures, and check.
 
 ### Developer C (Main Focus: AI Refinement and Testing)

@@ -13,6 +13,8 @@ class AudioManager:
        # Load necessary sound files
         sound_files = {
             "move": "move.wav",  # Sound for moving a piece
+            "checkmate": "checkmate.wav",  # Sound for checkmate
+            "capture": "capture.wav",  # Sound for capturing a piece
         }
 
         for key, filename in sound_files.items():

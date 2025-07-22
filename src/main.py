@@ -32,32 +32,46 @@ def main():
     while running:
         screen.fill((30, 30, 30))
         if board_renderer.turn:
-            # If it's the AI's turn, get the best move and apply it
+            # Mostra a mensagem 'Turno das Pretas' antes da IA jogar | Show 'Black's Turn' before AI moves
+            board_renderer.draw_board()
+            pygame.display.flip()  # Atualiza a tela imediatamente
+            pygame.time.delay(1500)  # Aguarda 1.5 segundos | Wait 1.5 seconds
+
+            # Após delay, IA faz o movimento | After delay, AI plays
             ai = EasyAI(depth=2)
             best_move = ai.get_best_move(board_renderer.chess_game.board)
             if best_move:
                 move_uci = best_move.uci()  # e.g., "e2e4"
-                board_renderer.from_chess_square(move_uci)  # parse the move
+                board_renderer.from_chess_square(move_uci)
                 piece = board_renderer.test_board[board_renderer.row_ai][board_renderer.col_ai]
+
                 if piece:
                     ai_piece = piece
-                    board_renderer.test_board[board_renderer.row_ai][board_renderer.col_ai] = None  # temporarily remove the piece from the board
+                    board_renderer.test_board[board_renderer.row_ai][board_renderer.col_ai] = None
 
+                captured_piece = board_renderer.test_board[board_renderer.new_row_ai][board_renderer.new_col_ai]
                 board_renderer.test_board[board_renderer.new_row_ai][board_renderer.new_col_ai] = ai_piece
-
                 board_renderer.chess_game.make_move(move_uci)
                 board_renderer.turn = False
-
+                board_renderer.last_move = move_uci  # Registra último movimento da IA | Records AI's last move
+                
+                if board_renderer.audio_manager:
+                    if captured_piece:
+                        board_renderer.audio_manager.play("capture")
+                    else:
+                        board_renderer.audio_manager.play("move")
+                    if board_renderer.chess_game.is_checkmate():
+                        board_renderer.audio_manager.play("checkmate")
             else:
                 board_renderer.test_board[board_renderer.row][board_renderer.col] = board_renderer.dragging_piece
-        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                board_renderer.start_drag(event.pos)
+                board_renderer.handle_click(event.pos)  # <--- show moves on click
+                board_renderer.start_drag(event.pos)    # <--- começa o arraste se quiser mover 
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 board_renderer.end_drag(event.pos)

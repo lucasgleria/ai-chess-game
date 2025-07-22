@@ -1,4 +1,4 @@
-import pytest
+import pytest # type: ignore
 from core.chess_game import ChessGame
 
 @pytest.fixture
