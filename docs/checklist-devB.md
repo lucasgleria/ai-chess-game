@@ -32,13 +32,13 @@
 
 ## Phase 2: Integration and Essential Features
 
-- [ ] **2.B.1 Drawing Refinements:**
-  - Improve piece drawing (centering, size adjustment).
+- [X] **2.B.1 Drawing Refinements:**
+  - Improve piece drawing (centering, size adjustment).a
   - Implement highlight of valid moves when a piece is selected (receiving legal moves from Developer A).
   - Implement highlight of the last move.
-- [ ] **2.B.2 Status Messages:**
+- [X] **2.B.2 Status Messages:**
   - Display on-screen text messages: "White's Turn", "Black's Turn", "Check!", "Checkmate!", "Draw!".
-- [ ] **2.B.3 Piece Animation:**
+- [X] **2.B.3 Piece Animation:**
   - Implement smooth sliding animation for pieces (not "teleport").
 - [ ] **2.B.4 Game Sounds:**
   - Integrate sounds for piece moves, captures, and check.

@@ -30,7 +30,7 @@ class ChessGame:
         move = chess.Move.from_uci(move_str)
         if move:
             self.board.push(move)
-            return True
+
         return False
 
     def undo_move(self):
@@ -66,6 +66,22 @@ class ChessGame:
         Returns a list of legal moves in UCI format.
         """
         return [move.uci() for move in self.board.legal_moves]
+    
+    def get_legal_moves_from(self, square_str):
+        """
+        Returns a list of destination squares (as (row, col)) for legal moves starting from the given square.
+        Example: 'e2' -> [(5, 2), (4, 2)] (if those are legal)
+        """
+        moves = []
+        from_square = chess.parse_square(square_str)
+        
+        for move in self.board.legal_moves:
+            if move.from_square == from_square:
+                to_row, to_col = divmod(move.to_square, 8)
+                to_row = 7 - to_row  # <--- Inverted Row
+                moves.append((to_row, to_col))
+        
+        return moves
 
     def uci_to_move(self, move_str):
         """
