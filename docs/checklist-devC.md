@@ -52,14 +52,14 @@
 
 ## Phase 3: Advanced Features and Polish
 
-- [ ] **3.C.1 Stockfish Integration:**  
+- [x] **3.C.1 Stockfish Integration:**  
   Implement the `StockfishAI` class that interacts with the Stockfish executable (download it and include it in the `engines/` folder).  
   Use `python-chess.engine` or the `stockfish` library for this communication.
 
-- [ ] **3.C.2 Stockfish Difficulty Configuration:**  
+- [x] **3.C.2 Stockfish Difficulty Configuration:**  
   Allow adjusting the thinking time or "skill level" of Stockfish through the UI (e.g., slider or buttons in the difficulty menu).
 
-- [ ] **3.C.3 AI Performance Optimization and Testing:**  
+- [x] **3.C.3 AI Performance Optimization and Testing:**  
   Ensure that the AI (especially Stockfish) doesn't freeze the interface (may need to use threading for longer calculations).  
   Test AI performance on different machines.
 

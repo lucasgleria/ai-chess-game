@@ -41,10 +41,10 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer A (Main Focus: Game Flow and AI)
 
-- [ ] **2.A.1 Logic-UI Integration:** Connect UI events to move logic.
-- [ ] **2.A.2 AI Integration:** Call AI on its turn and apply the move.
-- [ ] **2.A.3 Undo Implementation:** Connect undo function to a UI event.
-- [ ] **2.A.4 Match Management:** Implement transitions between game states.
+- [x] **2.A.1 Logic-UI Integration:** Connect UI events to move logic.
+- [x] **2.A.2 AI Integration:** Call AI on its turn and apply the move.
+- [x] **2.A.3 Undo Implementation:** Connect undo function to a UI event.
+- [x] **2.A.4 Match Management:** Implement transitions between game states.
 
 ### Developer B (Main Focus: Interface Polish and UX)
 
@@ -79,9 +79,9 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer C (Main Focus: "Hard" AI and Difficulty Settings)
 
-- [ ] **3.C.1 Stockfish Integration:** Implement `StockfishAI` class and communication with executable.
-- [ ] **3.C.2 Stockfish Difficulty Configuration:** Allow adjustment of thinking time/skill level.
-- [ ] **3.C.3 AI Performance Optimization and Testing:** Ensure AI doesn't freeze the interface.
+- [x] **3.C.1 Stockfish Integration:** Implement `StockfishAI` class and communication with executable.
+- [x] **3.C.2 Stockfish Difficulty Configuration:** Allow adjustment of thinking time/skill level.
+- [x] **3.C.3 AI Performance Optimization and Testing:** Ensure AI doesn't freeze the interface.
 
 ---
 

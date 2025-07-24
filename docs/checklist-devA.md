@@ -33,19 +33,19 @@
 
 ## Phase 2: Integration and Essential Features
 
-- [ ] **2.A.1 Logic-UI Integration:**
+- [x] **2.A.1 Logic-UI Integration:**
   - Connect click/drag events from the interface (from Developer B) to the move logic (`ChessGame.make_move()`).
   - Receive feedback from the logic (`is_legal_move`, `is_checkmate`) and inform the UI.
 
-- [ ] **2.A.2 AI Integration:**
+- [x] **2.A.2 AI Integration:**
   - In the main game loop, alternate turns.
   - When it's the AI's turn (from Developer C), call `current_ai.get_best_move(board)`.
   - Apply the move returned by the AI to `ChessGame`.
   - Manage the game state (whose turn, if it's over).
 
-- [ ] **2.A.3 Undo Implementation:** Connect the logic's `undo_move()` method to a UI event (future button).
+- [x] **2.A.3 Undo Implementation:** Connect the logic's `undo_move()` method to a UI event (future button).
 
-- [ ] **2.A.4 Match Management:** Implement transitions between game states (menu, playing, end of game).
+- [x] **2.A.4 Match Management:** Implement transitions between game states (menu, playing, end of game).
 
 ---
 
