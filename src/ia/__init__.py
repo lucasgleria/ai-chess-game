@@ -23,11 +23,11 @@ __author__ = "Chess Game Team: Insert your name here"
 from .ai_base import BaseChessAI
 from .easy_ai import EasyAI
 from .medium_ai import MediumAI
-# from .stockfish_ai import StockfishAI  # quando implementado
+from .stockfish_ai import StockfishAI  
 
 __all__ = [
     "BaseChessAI",
     "EasyAI",
     "MediumAI",
-    # "StockfishAI"
+    "StockfishAI"
 ] 
