@@ -8,12 +8,12 @@ try:
 except ImportError:
     print("Warning: python-chess not installed. Please install with: pip install python-chess")
 
-class ChessGame:
+class ChessGame():
     """
     Manages the chessboard state and main game operations.
     """
-    def __init__(self):
-        self.board = chess.Board()
+    def __init__(self, FEN):
+        self.board = chess.Board(FEN)
         self.result = None
 
     def new_game(self):

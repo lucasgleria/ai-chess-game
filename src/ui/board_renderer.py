@@ -1,17 +1,18 @@
 # src/ui/board_renderer.py
 
 import pygame
+import re
 from src.core.chess_game import ChessGame
 from src.core.move_validator import MoveValidator
 
 class BoardRenderer:
-    def __init__(self, screen, square_size, asset_manager=None, audio_manager=None):
+    def __init__(self, screen, square_size, FEN, local, asset_manager=None, audio_manager=None):
 
         self.screen = screen # screen: surface where the board will be drawn
         self.square_size = square_size # square_size: size (in pixels/px) of each square on the board
         self.asset_manager = asset_manager # asset_manager: instance of AssetManager to load and manage piece images
         self.audio_manager = audio_manager  # AudioManager instance for sound effects, if needed
-        self.chess_game = ChessGame()  # Instance of ChessGame to manage game state
+        self.chess_game = ChessGame(FEN)  # Instance of ChessGame to manage game state
         self.move_val = MoveValidator(self.chess_game)
         
         # Fonte para mensagens de status | Font for status messages
@@ -36,18 +37,38 @@ class BoardRenderer:
         self.new_col_ai = None
         self.pos = None
         self.turn = False  # Placeholder for boolean state, if needed
+        self.local = local
+        self.local_turn = False
+
+        self.piece_map = {
+            'r': "black_rook",
+            'n': "black_knight",
+            'b': "black_bishop",
+            'q': "black_queen",
+            'k': "black_king",
+            'p': "black_pawn",
+            
+            'R': "white_rook",
+            'N': "white_knight",
+            'B': "white_bishop",
+            'Q': "white_queen",
+            'K': "white_king",
+            'P': "white_pawn"
+        }
 
         # Chessboard test with pieces (AssetManager)
-        self.test_board = [
-            ["black_rook", "black_knight", "black_bishop", "black_queen", "black_king", "black_bishop", "black_knight", "black_rook"],
-            ["black_pawn"] * 8,
-            [None] * 8,
-            [None] * 8,
-            [None] * 8,
-            [None] * 8,
-            ["white_pawn"] * 8,
-            ["white_rook", "white_knight", "white_bishop", "white_queen", "white_king", "white_bishop", "white_knight", "white_rook"]
-        ]
+        self.test_board = []
+        self.FEN = FEN
+
+        self.FEN_split = re.split(r'[ /]', self.FEN)
+        for i in self.FEN_split[:-5]:
+            row = []
+            for char in i:
+                if char.isdigit():
+                    row.extend([None] * int(char))
+                else:
+                    row.append(self.piece_map[char])
+            self.test_board.append(row)
         
         self.selected_square = None  # No piece selected initially
         
@@ -95,7 +116,7 @@ class BoardRenderer:
                 elif self.chess_game.board.is_check():
                     message = "Check!"
                 else:
-                    message = "Black's Turn" if self.turn else "White's Turn"
+                    message = "Black's Turn" if self.turn or self.local_turn else "White's Turn"
 
                 self.draw_status_message(message)
 
@@ -202,7 +223,13 @@ class BoardRenderer:
                 captured_piece = self.test_board[self.new_row][self.new_col]
                 self.test_board[self.new_row][self.new_col] = self.dragging_piece
                 self.chess_game.make_move(self.pos)
-                self.turn = True
+                
+                if self.local:
+                    self.turn = False
+                    self.local_turn = not self.local_turn
+                else:
+                    self.turn = True
+
                 self.last_move = self.pos  # armazena o último movimento
                 if self.audio_manager:
                     # Verifica se foi captura

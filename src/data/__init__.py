@@ -24,16 +24,6 @@ __all__ = [
 ]
 
 # Placeholder classes (to be implemented)
-class SaveManager:
-    """Handles saving and loading game states."""
-    
-    def save_game(self, game_state, filename):
-        """Save the current game state to a file."""
-        pass
-    
-    def load_game(self, filename):
-        """Load a game state from a file."""
-        pass
 
 class ConfigManager:
     """Manages game configuration settings."""

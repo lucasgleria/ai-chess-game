@@ -12,7 +12,7 @@ class MoveValidator:
         self.move = None
 
     def validate_move(self):
-        print(self.current_game.board)
+        
         if self.current_game.board.is_checkmate():
             print("Checkmate!")
             winner = "Black" if self.current_game.board.turn else "White"
