@@ -1,10 +1,8 @@
 import pygame
 import ctypes
 import sys
-from src.main import main
 
-
-class Game_modes():
+class GameModes():
 
     def __init__(self):
         pygame.init()
@@ -24,11 +22,10 @@ class Game_modes():
         self.BLUE = (70, 130, 180)
         self.DARK_BLUE = (40, 100, 160)
 
-    def game_modes_windows(self):
-        
-
+    def GameModes_windows(self, main_function_ref): # Adicionado main_function_ref como argumento
+        # A função New_Game agora receberá a referência para a função main
         def New_Game(FEN, local):
-            main(FEN, local)
+            main_function_ref(FEN, local) # Usa a função passada como argumento
 
         self.running = True
         while self.running:
