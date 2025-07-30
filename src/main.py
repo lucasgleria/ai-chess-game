@@ -13,6 +13,9 @@
 # from src.core.chess_game import ChessGame
 # import ctypes
 
+# # Import the GameModes class
+# from src.ui.game_modes import GameModes
+
 # CONFIG_PATH = "config.json"
 # BOARD_SIZE = 8
 # MENU_HEIGHT = 80
@@ -144,7 +147,7 @@
 #         time_rect = draw_slider(board_x + 320, board_y + BOARD_WIDTH + 35, "Time", round(thinking_time, 1), 0.5, 5.0, 0.5)
 
 #         # Save_Game button
-#         button_width2 = 140 
+#         button_width2 = 140
 #         button_height2 = 70
 
 #         screen_width = screen.get_width()
@@ -158,7 +161,7 @@
 #         BLUE = (70, 130, 180)
 #         color = BLUE
 #         button_rect2 = pygame.Rect(button_x2 , button_y2, button_width2, button_height2)
-        
+
 #         mouse_pos = pygame.mouse.get_pos()
 #         if button_rect2.collidepoint(mouse_pos):
 #             color = DARK_BLUE
@@ -216,7 +219,6 @@
 #             elif event.type == pygame.MOUSEMOTION:
 #                 board_renderer.update_mouse_pos((event.pos[0] - board_x, event.pos[1] - board_y))
 
-        
 
 #         pygame.display.flip()
 #         clock.tick(60)
@@ -224,8 +226,14 @@
 #     pygame.quit()
 #     sys.exit()
 
+# def run_main():
+#     # Create an instance of GameModes
+#     game_modes_instance = GameModes()
+#     # Call the GameModes_windows method on the instance
+#     game_modes_instance.GameModes_windows()
+
 # if __name__ == "__main__":
-#     main()
+#     run_main()
 
 import pygame
 import sys
@@ -241,9 +249,6 @@ from src.ia.stockfish_ai import StockfishAI
 from src.data.save_manager import SaveManager
 from src.core.chess_game import ChessGame
 import ctypes
-
-# Import the GameModes class
-from src.ui.game_modes import GameModes
 
 CONFIG_PATH = "config.json"
 BOARD_SIZE = 8
@@ -266,7 +271,8 @@ def save_config(selected_ai, skill_level, thinking_time):
             "thinking_time": thinking_time
         }, f)
 
-def main(FEN, local):
+# A função main agora recebe 'selected_ai_type'
+def main(FEN, local, selected_ai_type=None):
     pygame.init()
     pygame.mixer.init()
 
@@ -279,6 +285,7 @@ def main(FEN, local):
     pygame.display.set_caption("AI Chess Game")
 
     font = pygame.font.SysFont(None, 24)
+    large_font = pygame.font.SysFont(None, 48) # New font for game over message
     clock = pygame.time.Clock()
 
     audio_manager = AudioManager()
@@ -288,24 +295,30 @@ def main(FEN, local):
     chess_game = ChessGame(FEN)
 
     config = load_config()
-    selected_ai = config["selected_ai"]
+    # Usamos o selected_ai_type passado, ou o do config se não for fornecido (para compatibilidade)
+    current_ai_type = selected_ai_type if selected_ai_type else config["selected_ai"]
     skill_level = config["skill_level"]
     thinking_time = config["thinking_time"]
 
-    ai = StockfishAI(skill_level=skill_level, thinking_time=thinking_time)
+    ai = None # Inicializa como None, será definido em update_ai
     ai_thinking = False
+
+    # Game state variables for end game screen
+    game_over_state = False
+    game_result_text = ""
 
     def update_ai():
         nonlocal ai
-        if selected_ai == "easy":
+        # Define a IA baseada no tipo selecionado
+        if current_ai_type == "easy":
             ai = EasyAI(depth=1)
-        elif selected_ai == "medium":
+        elif current_ai_type == "medium":
             ai = MediumAI(depth=2)
-        elif selected_ai == "stockfish":
+        elif current_ai_type == "stockfish":
             ai = StockfishAI(skill_level=skill_level, thinking_time=thinking_time)
 
     def on_ai_move(best_move):
-        nonlocal ai_thinking
+        nonlocal ai_thinking, game_over_state, game_result_text
         if best_move:
             move_uci = best_move.uci()
             board_renderer.from_chess_square(move_uci)
@@ -324,11 +337,25 @@ def main(FEN, local):
                     board_renderer.audio_manager.play("capture")
                 else:
                     board_renderer.audio_manager.play("move")
-                if board_renderer.chess_game.is_checkmate():
-                    board_renderer.audio_manager.play("checkmate")
+
+            if chess_game.is_game_over():
+                game_over_state = True
+                outcome = chess_game.outcome()
+                if outcome:
+                    if outcome.winner == chess.WHITE:
+                        game_result_text = "Brancas Venceram!"
+                    elif outcome.winner == chess.BLACK:
+                        game_result_text = "Pretas Venceram!"
+                    else:
+                        game_result_text = "Empate!"
+                else:
+                    game_result_text = "Jogo Encerrado!"
+                if board_renderer.audio_manager:
+                    board_renderer.audio_manager.play("checkmate") # Or a specific game over sound
 
         ai_thinking = False
 
+    # A função draw_button e draw_slider permanecem, mas os botões de IA serão removidos do loop principal
     def draw_button(rect, text, selected=False):
         pygame.draw.rect(screen, (100, 100, 100) if selected else (60, 60, 60), rect)
         label = font.render(text, True, (255, 255, 255))
@@ -342,7 +369,71 @@ def main(FEN, local):
         screen.blit(label, (x, y))
         return pygame.Rect(x, y + 25, width, 16)
 
-    update_ai()
+    def draw_end_game_screen(result_text):
+        # Dark overlay
+        overlay = pygame.Surface((screen_w, screen_h), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180)) # Semi-transparent black
+        screen.blit(overlay, (0, 0))
+
+        # Box for content
+        box_width = 400
+        box_height = 300
+        box_x = (screen_w - box_width) // 2
+        box_y = (screen_h - box_height) // 2
+        pygame.draw.rect(screen, (50, 50, 50), (box_x, box_y, box_width, box_height), border_radius=15)
+        pygame.draw.rect(screen, (80, 80, 80), (box_x, box_y, box_width, box_height), 3, border_radius=15) # Border
+
+        # Result message
+        result_surface = large_font.render(result_text, True, (255, 255, 255))
+        result_rect = result_surface.get_rect(center=(screen_w // 2, box_y + 50))
+        screen.blit(result_surface, result_rect)
+
+        # Buttons
+        button_width_end = 200
+        button_height_end = 50
+        button_spacing_end = 20
+
+        play_again_rect = pygame.Rect(
+            (screen_w - button_width_end) // 2,
+            box_y + 120,
+            button_width_end,
+            button_height_end
+        )
+        main_menu_rect = pygame.Rect(
+            (screen_w - button_width_end) // 2,
+            play_again_rect.bottom + button_spacing_end,
+            button_width_end,
+            button_height_end
+        )
+        exit_rect = pygame.Rect(
+            (screen_w - button_width_end) // 2,
+            main_menu_rect.bottom + button_spacing_end,
+            button_width_end,
+            button_height_end
+        )
+
+        # Hover effect
+        mouse_pos = pygame.mouse.get_pos()
+        color_play_again = (90, 90, 90) if play_again_rect.collidepoint(mouse_pos) else (60, 60, 60)
+        color_main_menu = (90, 90, 90) if main_menu_rect.collidepoint(mouse_pos) else (60, 60, 60)
+        color_exit = (90, 90, 90) if exit_rect.collidepoint(mouse_pos) else (60, 60, 60)
+
+        pygame.draw.rect(screen, color_play_again, play_again_rect, border_radius=10)
+        pygame.draw.rect(screen, color_main_menu, main_menu_rect, border_radius=10)
+        pygame.draw.rect(screen, color_exit, exit_rect, border_radius=10)
+
+        text_play_again = font.render("Jogar Novamente", True, (255, 255, 255))
+        text_main_menu = font.render("Menu Principal", True, (255, 255, 255))
+        text_exit = font.render("Sair do Jogo", True, (255, 255, 255))
+
+        screen.blit(text_play_again, text_play_again.get_rect(center=play_again_rect.center))
+        screen.blit(text_main_menu, text_main_menu.get_rect(center=main_menu_rect.center))
+        screen.blit(text_exit, text_exit.get_rect(center=exit_rect.center))
+
+        return play_again_rect, main_menu_rect, exit_rect
+
+
+    update_ai() # Chama update_ai para inicializar a IA com base em current_ai_type
     running = True
 
     while running:
@@ -361,19 +452,16 @@ def main(FEN, local):
         # Draw menu
         pygame.draw.rect(screen, (40, 40, 40), (board_x, board_y + BOARD_WIDTH, BOARD_WIDTH, MENU_HEIGHT))
 
-        # Button Positions
-        buttons = {
-            "easy": pygame.Rect(board_x + 10, board_y + BOARD_WIDTH + 10, 80, 30),
-            "medium": pygame.Rect(board_x + 100, board_y + BOARD_WIDTH + 10, 90, 30),
-            "stockfish": pygame.Rect(board_x + 200, board_y + BOARD_WIDTH + 10, 100, 30),
-        }
+        # Sliders (permanecem, pois são para Stockfish)
+        # Só desenha os sliders se a IA selecionada for Stockfish
+        if current_ai_type == "stockfish":
+            skill_rect = draw_slider(board_x + 320, board_y + BOARD_WIDTH + 5, "Skill", skill_level, 0, 20, 1)
+            time_rect = draw_slider(board_x + 320, board_y + BOARD_WIDTH + 35, "Tempo", round(thinking_time, 1), 0.5, 5.0, 0.5)
+        else:
+            # Se não for Stockfish, definimos retângulos vazios para evitar NameError
+            skill_rect = pygame.Rect(0,0,0,0)
+            time_rect = pygame.Rect(0,0,0,0)
 
-        for ai_key, rect in buttons.items():
-            draw_button(rect, ai_key.capitalize(), selected_ai == ai_key)
-
-        # Sliders
-        skill_rect = draw_slider(board_x + 320, board_y + BOARD_WIDTH + 5, "Skill", skill_level, 0, 20, 1)
-        time_rect = draw_slider(board_x + 320, board_y + BOARD_WIDTH + 35, "Time", round(thinking_time, 1), 0.5, 5.0, 0.5)
 
         # Save_Game button
         button_width2 = 140
@@ -398,11 +486,13 @@ def main(FEN, local):
             color = BLUE
 
         pygame.draw.rect(screen, color, button_rect2, border_radius=12)
-        text_surface2 = font.render("Save Game", True, (255, 255, 255))
+        text_surface2 = font.render("Salvar Jogo", True, (255, 255, 255))
         text_rect2 = text_surface2.get_rect(center=button_rect2.center)
         screen.blit(text_surface2, text_rect2)
 
-        if board_renderer.turn and not ai_thinking:
+        # AI move logic
+        # A IA só joga se não for um jogo local (Player vs Player) e o jogo não tiver acabado
+        if not local and board_renderer.turn and not ai_thinking and not game_over_state:
             ai_thinking = True
             pygame.display.flip()
             pygame.time.delay(1000)
@@ -413,53 +503,84 @@ def main(FEN, local):
                 best_move = ai.get_best_move(board_renderer.chess_game.board)
                 on_ai_move(best_move)
 
+        # Check for game over after each move (player or AI)
+        if chess_game.is_game_over() and not game_over_state:
+            game_over_state = True
+            outcome = chess_game.outcome()
+            if outcome:
+                if outcome.winner == chess.WHITE:
+                    game_result_text = "Brancas Venceram!"
+                elif outcome.winner == chess.BLACK:
+                    game_result_text = "Pretas Venceram!"
+                else:
+                    game_result_text = "Empate!"
+            else:
+                game_result_text = "Jogo Encerrado!"
+            if board_renderer.audio_manager:
+                board_renderer.audio_manager.play("checkmate") # Or a specific game over sound
+
+
+        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                save_config(selected_ai, skill_level, thinking_time)
+                save_config(current_ai_type, skill_level, thinking_time) # Salva o tipo de IA atual
                 running = False
 
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                for ai_key, rect in buttons.items():
-                    if rect.collidepoint(event.pos):
-                        selected_ai = ai_key
-                        update_ai()
-                if skill_rect.collidepoint(event.pos):
-                    rel_x = max(0, min(skill_rect.width, event.pos[0] - skill_rect.x))
-                    skill_level = int((rel_x / skill_rect.width) * 20)
-                    update_ai()
-                if time_rect.collidepoint(event.pos):
-                    rel_x = max(0, min(time_rect.width, event.pos[0] - time_rect.x))
-                    thinking_time = round((rel_x / time_rect.width) * 4.5 + 0.5, 1)
-                    update_ai()
-                if board_x <= event.pos[0] < board_x + BOARD_WIDTH and board_y <= event.pos[1] < board_y + BOARD_WIDTH:
-                    board_renderer.handle_click((event.pos[0] - board_x, event.pos[1] - board_y))
-                    board_renderer.start_drag((event.pos[0] - board_x, event.pos[1] - board_y))
+                if game_over_state:
+                    play_again_rect, main_menu_rect, exit_rect = draw_end_game_screen(game_result_text) # Get rects for click detection
+                    if play_again_rect.collidepoint(event.pos):
+                        chess_game.new_game() # Reset the board
+                        board_renderer.FEN = chess_game.board.fen() # Update renderer FEN
+                        board_renderer.load_pieces() # Reload pieces
+                        board_renderer.turn = False # Reset turn for AI if applicable
+                        game_over_state = False # Exit end game state
+                        game_result_text = "" # Clear result text
+                        ai_thinking = False # Reset AI thinking state
+                    elif main_menu_rect.collidepoint(event.pos):
+                        save_config(current_ai_type, skill_level, thinking_time) # Salva o tipo de IA atual
+                        running = False # Sai do loop do jogo para retornar ao menu principal
+                    elif exit_rect.collidepoint(event.pos):
+                        save_config(current_ai_type, skill_level, thinking_time) # Salva o tipo de IA atual
+                        running = False
+                        sys.exit() # Exit the entire application
+                else: # Normal game interaction (apenas se o jogo não tiver acabado)
+                    # Removidos os botões de seleção de IA daqui
+                    if current_ai_type == "stockfish": # Apenas lida com sliders se for Stockfish
+                        if skill_rect.collidepoint(event.pos):
+                            rel_x = max(0, min(skill_rect.width, event.pos[0] - skill_rect.x))
+                            skill_level = int((rel_x / skill_rect.width) * 20)
+                            update_ai()
+                        if time_rect.collidepoint(event.pos):
+                            rel_x = max(0, min(time_rect.width, event.pos[0] - time_rect.x))
+                            thinking_time = round((rel_x / time_rect.width) * 4.5 + 0.5, 1)
+                            update_ai()
+                    if board_x <= event.pos[0] < board_x + BOARD_WIDTH and board_y <= event.pos[1] < board_y + BOARD_WIDTH:
+                        board_renderer.handle_click((event.pos[0] - board_x, event.pos[1] - board_y))
+                        board_renderer.start_drag((event.pos[0] - board_x, event.pos[1] - board_y))
 
-                if button_rect2.collidepoint(event.pos):
-                    save_manager.save_game(board_renderer.chess_game.board.fen())
+                    if button_rect2.collidepoint(event.pos):
+                        save_manager.save_game(board_renderer.chess_game.board.fen())
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                if board_x <= event.pos[0] < board_x + BOARD_WIDTH and board_y <= event.pos[1] < board_y + BOARD_WIDTH:
+                if not game_over_state and board_x <= event.pos[0] < board_x + BOARD_WIDTH and board_y <= event.pos[1] < board_y + BOARD_WIDTH:
                     board_renderer.end_drag((event.pos[0] - board_x, event.pos[1] - board_y))
 
             elif event.type == pygame.MOUSEMOTION:
-                board_renderer.update_mouse_pos((event.pos[0] - board_x, event.pos[1] - board_y))
+                if not game_over_state:
+                    board_renderer.update_mouse_pos((event.pos[0] - board_x, event.pos[1] - board_y))
 
+
+        # Draw end game screen if game is over
+        if game_over_state:
+            draw_end_game_screen(game_result_text)
 
         pygame.display.flip()
         clock.tick(60)
 
     pygame.quit()
-    sys.exit()
-
-def run_main():
-    # Create an instance of GameModes
-    game_modes_instance = GameModes()
-    # Call the GameModes_windows method on the instance
-    game_modes_instance.GameModes_windows()
-
-if __name__ == "__main__":
-    run_main()
+    # Não chama sys.exit() aqui para permitir que run_main no main.py chame GameModes_windows novamente
+    # ou saia do programa completamente.
