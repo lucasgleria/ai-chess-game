@@ -1,480 +1,342 @@
-# # import pygame
-# # import ctypes
-# # import sys
-
-# # class GameModes():
-
-# #     def __init__(self):
-# #         pygame.init()
-
-# #         self.info = pygame.display.Info()
-# #         self.screen_width, self.screen_height = self.info.current_w, self.info.current_h
-# #         self.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-# #         # Create a resizable window the size of the screen
-# #         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height - 10), pygame.RESIZABLE)
-# #         ctypes.windll.user32.ShowWindow(pygame.display.get_wm_info()['window'], 3)
-# #         pygame.display.set_caption("AI Chess Game")
-
-# #         self.font = pygame.font.SysFont(None, 36)
-
-# #         self.WHITE = (255, 255, 255)
-# #         self.BLUE = (70, 130, 180)
-# #         self.DARK_BLUE = (40, 100, 160)
-
-# #     def GameModes_windows(self, main_function_ref): # Adicionado main_function_ref como argumento
-# #         # A função New_Game agora receberá a referência para a função main
-# #         def New_Game(FEN, local):
-# #             main_function_ref(FEN, local) # Usa a função passada como argumento
-
-# #         self.running = True
-# #         while self.running:
-# #             for event in pygame.event.get():
-# #                 if event.type == pygame.QUIT:
-# #                     self.running = False
-
-# #                 elif event.type == pygame.VIDEORESIZE:
-# #                     self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-# #                 elif event.type == pygame.MOUSEBUTTONDOWN:
-# #                     if self.button_rect.collidepoint(event.pos):
-# #                         self.local = False
-# #                         New_Game(self.FEN, self.local)
-
-# #                     if self.button_rect2.collidepoint(event.pos):
-# #                         self.local = True
-# #                         New_Game(self.FEN, self.local)
-
-# #             self.screen_width = self.screen.get_width()
-# #             self.screen_height = self.screen.get_height()
-
-# #             self.button_width = 180
-# #             self.button_height = 70
-# #             self.spacing = 30
-
-# #             self.total_height = 2 * self.button_height + self.spacing
-# #             self.start_y = (self.screen_height - self.total_height) // 2
-# #             self.button_x = (self.screen_width - self.button_width) // 2
-
-# #             self.button_rect = pygame.Rect(self.button_x, self.start_y, self.button_width, self.button_height)# AI VS player
-# #             self.button_rect2 = pygame.Rect(self.button_x - 10, self.start_y + self.button_height + self.spacing, self.button_width + 20, self.button_height)# Local_multiplayer
-
-# #             self.screen.fill(self.WHITE)
-
-# #             self.mouse_pos = pygame.mouse.get_pos()
-
-# #             if self.button_rect.collidepoint(self.mouse_pos):
-# #                 self.color = self.DARK_BLUE
-# #             else:
-# #                 self.color = self.BLUE
-
-# #             if self.button_rect2.collidepoint(self.mouse_pos):
-# #                 self.color2 = self.DARK_BLUE
-# #             else:
-# #                 self.color2 = self.BLUE
-
-# #             pygame.draw.rect(self.screen, self.color, self.button_rect, border_radius=12)
-# #             pygame.draw.rect(self.screen, self.color2, self.button_rect2, border_radius=12)
-
-# #             self.text_surface = self.font.render("AI VS Player", True, self.WHITE)
-# #             self.text_rect = self.text_surface.get_rect(center=self.button_rect.center)
-# #             self.screen.blit(self.text_surface, self.text_rect)
-
-# #             self.text_surface2 = self.font.render("Player VS Player", True, self.WHITE)
-# #             self.text_rect2 = self.text_surface2.get_rect(center=self.button_rect2.center)
-# #             self.screen.blit(self.text_surface2, self.text_rect2)
-
-# #             pygame.display.flip()
-
-# #         pygame.quit()
-# #         sys.exit()
-
-
-# import pygame
-# import ctypes
-# import sys
-
-# class GameModes():
-
-#     def __init__(self):
-#         pygame.init()
-
-#         self.info = pygame.display.Info()
-#         self.screen_width, self.screen_height = self.info.current_w, self.info.current_h
-#         self.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-#         # Define a tela inicial
-#         self.current_screen = 'main_menu' # 'main_menu' ou 'ai_difficulty_selection'
-
-#         # Cria uma janela redimensionável do tamanho da tela
-#         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height - 10), pygame.RESIZABLE)
-#         ctypes.windll.user32.ShowWindow(pygame.display.get_wm_info()['window'], 3)
-#         pygame.display.set_caption("AI Chess Game")
-
-#         self.font = pygame.font.SysFont(None, 36)
-#         self.small_font = pygame.font.SysFont(None, 28) # Fonte menor para botões
-
-#         self.WHITE = (255, 255, 255)
-#         self.BLUE = (70, 130, 180)
-#         self.DARK_BLUE = (40, 100, 160)
-
-#     def GameModes_windows(self, main_function_ref): # Agora recebe main_function_ref
-#         # Função interna para iniciar o jogo
-#         def New_Game(FEN, local, ai_type=None): # Adicionado ai_type
-#             main_function_ref(FEN, local, ai_type) # Usa a função passada como argumento
-
-#         self.running = True
-#         while self.running:
-#             for event in pygame.event.get():
-#                 if event.type == pygame.QUIT:
-#                     self.running = False
-#                     pygame.quit()
-#                     sys.exit()
-
-#                 elif event.type == pygame.VIDEORESIZE:
-#                     self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-#                     self.screen_width, self.screen_height = event.w, event.h
-
-#                 elif event.type == pygame.MOUSEBUTTONDOWN:
-#                     if self.current_screen == 'main_menu':
-#                         if self.button_ai_vs_player_rect.collidepoint(event.pos):
-#                             self.current_screen = 'ai_difficulty_selection' # Mudar para tela de dificuldade
-#                         elif self.button_player_vs_player_rect.collidepoint(event.pos):
-#                             New_Game(self.FEN, True) # Inicia Player vs Player
-#                     elif self.current_screen == 'ai_difficulty_selection':
-#                         if self.button_easy_rect.collidepoint(event.pos):
-#                             New_Game(self.FEN, False, 'easy')
-#                         elif self.button_medium_rect.collidepoint(event.pos):
-#                             New_Game(self.FEN, False, 'medium')
-#                         elif self.button_stockfish_rect.collidepoint(event.pos):
-#                             New_Game(self.FEN, False, 'stockfish')
-#                         elif self.button_back_rect.collidepoint(event.pos):
-#                             self.current_screen = 'main_menu' # Voltar ao menu principal
-
-#             self.screen_width = self.screen.get_width()
-#             self.screen_height = self.screen.get_height()
-
-#             self.screen.fill(self.WHITE) # Limpa a tela
-
-#             if self.current_screen == 'main_menu':
-#                 self._draw_main_menu()
-#             elif self.current_screen == 'ai_difficulty_selection':
-#                 self._draw_ai_difficulty_menu()
-
-#             pygame.display.flip()
-
-#         pygame.quit()
-#         sys.exit()
-
-#     def _draw_main_menu(self):
-#         # Configurações de botões para o menu principal
-#         button_width = 180
-#         button_height = 70
-#         spacing = 30
-#         total_height = 2 * button_height + spacing
-#         start_y = (self.screen_height - total_height) // 2
-#         button_x = (self.screen_width - button_width) // 2
-
-#         self.button_ai_vs_player_rect = pygame.Rect(button_x, start_y, button_width, button_height)
-#         self.button_player_vs_player_rect = pygame.Rect(button_x - 10, start_y + button_height + spacing, button_width + 20, button_height)
-
-#         mouse_pos = pygame.mouse.get_pos()
-
-#         # Desenha botões do menu principal
-#         color_ai_vs_player = self.DARK_BLUE if self.button_ai_vs_player_rect.collidepoint(mouse_pos) else self.BLUE
-#         color_player_vs_player = self.DARK_BLUE if self.button_player_vs_player_rect.collidepoint(mouse_pos) else self.BLUE
-
-#         pygame.draw.rect(self.screen, color_ai_vs_player, self.button_ai_vs_player_rect, border_radius=12)
-#         pygame.draw.rect(self.screen, color_player_vs_player, self.button_player_vs_player_rect, border_radius=12)
-
-#         text_surface_ai_vs_player = self.font.render("IA VS Jogador", True, self.WHITE)
-#         text_rect_ai_vs_player = text_surface_ai_vs_player.get_rect(center=self.button_ai_vs_player_rect.center)
-#         self.screen.blit(text_surface_ai_vs_player, text_rect_ai_vs_player)
-
-#         text_surface_player_vs_player = self.font.render("Jogador VS Jogador", True, self.WHITE)
-#         text_rect_player_vs_player = text_surface_player_vs_player.get_rect(center=self.button_player_vs_player_rect.center)
-#         self.screen.blit(text_surface_player_vs_player, text_rect_player_vs_player)
-
-#     def _draw_ai_difficulty_menu(self):
-#         # Configurações de botões para a seleção de dificuldade
-#         button_width = 200
-#         button_height = 60
-#         spacing = 20
-#         total_height = 3 * button_height + 2 * spacing + 50 # +50 para o botão Voltar
-#         start_y = (self.screen_height - total_height) // 2
-#         button_x = (self.screen_width - button_width) // 2
-
-#         # Título
-#         title_surface = self.font.render("Escolha a Dificuldade da IA", True, (50, 50, 50))
-#         title_rect = title_surface.get_rect(center=(self.screen_width // 2, start_y - 40))
-#         self.screen.blit(title_surface, title_rect)
-
-#         self.button_easy_rect = pygame.Rect(button_x, start_y, button_width, button_height)
-#         self.button_medium_rect = pygame.Rect(button_x, start_y + button_height + spacing, button_width, button_height)
-#         self.button_stockfish_rect = pygame.Rect(button_x, start_y + 2 * (button_height + spacing), button_width, button_height)
-
-#         # Botão Voltar
-#         self.button_back_rect = pygame.Rect(button_x, self.button_stockfish_rect.bottom + spacing * 1.5, button_width, button_height)
-
-
-#         mouse_pos = pygame.mouse.get_pos()
-
-#         # Desenha botões de dificuldade
-#         color_easy = self.DARK_BLUE if self.button_easy_rect.collidepoint(mouse_pos) else self.BLUE
-#         color_medium = self.DARK_BLUE if self.button_medium_rect.collidepoint(mouse_pos) else self.BLUE
-#         color_stockfish = self.DARK_BLUE if self.button_stockfish_rect.collidepoint(mouse_pos) else self.BLUE
-#         color_back = self.DARK_BLUE if self.button_back_rect.collidepoint(mouse_pos) else self.BLUE
-
-
-#         pygame.draw.rect(self.screen, color_easy, self.button_easy_rect, border_radius=12)
-#         pygame.draw.rect(self.screen, color_medium, self.button_medium_rect, border_radius=12)
-#         pygame.draw.rect(self.screen, color_stockfish, self.button_stockfish_rect, border_radius=12)
-#         pygame.draw.rect(self.screen, color_back, self.button_back_rect, border_radius=12)
-
-
-#         text_surface_easy = self.font.render("Fácil", True, self.WHITE)
-#         text_rect_easy = text_surface_easy.get_rect(center=self.button_easy_rect.center)
-#         self.screen.blit(text_surface_easy, text_rect_easy)
-
-#         text_surface_medium = self.font.render("Médio", True, self.WHITE)
-#         text_rect_medium = text_surface_medium.get_rect(center=self.button_medium_rect.center)
-#         self.screen.blit(text_surface_medium, text_rect_medium)
-
-#         text_surface_stockfish = self.font.render("Stockfish", True, self.WHITE)
-#         text_rect_stockfish = text_surface_stockfish.get_rect(center=self.button_stockfish_rect.center)
-#         self.screen.blit(text_surface_stockfish, text_rect_stockfish)
-
-#         text_surface_back = self.small_font.render("Voltar", True, self.WHITE)
-#         text_rect_back = text_surface_back.get_rect(center=self.button_back_rect.center)
-#         self.screen.blit(text_surface_back, text_rect_back)
-
-
 import pygame
-import ctypes
 import sys
-# REMOVIDO: from src.main import main # Esta linha causava a importação circular!
+import chess
+from src.main import main # Importa a função main do src/main.py
+from src.data.save_manager import SaveManager # Importa o SaveManager
 
-class GameModes():
+class GameModes:
+    def __init__(self, screen, save_manager):
+        self.screen = screen
+        self.save_manager = save_manager
 
-    def __init__(self):
-        pygame.init()
-
-        self.info = pygame.display.Info()
-        self.screen_width, self.screen_height = self.info.current_w, self.info.current_h
-        self.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-        # Define a tela inicial
-        self.current_screen = 'main_menu' # 'main_menu', 'ai_difficulty_selection' ou 'time_control_selection'
-
-        # Cria uma janela redimensionável do tamanho da tela
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height - 10), pygame.RESIZABLE)
-        ctypes.windll.user32.ShowWindow(pygame.display.get_wm_info()['window'], 3)
-        pygame.display.set_caption("AI Chess Game")
-
+        self.screen_width, self.screen_height = self.screen.get_size()
         self.font = pygame.font.SysFont(None, 36)
-        self.small_font = pygame.font.SysFont(None, 28) # Fonte menor para botões
+        self.big_font = pygame.font.SysFont(None, 48)
 
         self.WHITE = (255, 255, 255)
         self.BLUE = (70, 130, 180)
         self.DARK_BLUE = (40, 100, 160)
+        self.GRAY = (150, 150, 150)
+        self.LIGHT_GRAY = (180, 180, 180)
+        self.RED = (200, 50, 50)
+        self.DARK_RED = (150, 30, 30)
 
-    def GameModes_windows(self, main_function_ref): # Agora recebe main_function_ref
-        # Função interna para iniciar o jogo
-        # Adicionado time_control como argumento
-        def New_Game(FEN, local, ai_type=None, time_control=None):
-            main_function_ref(FEN, local, ai_type, time_control) # Passa time_control para a função main
+        self.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-        self.running = True
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                    pygame.quit()
-                    sys.exit()
+        # Variáveis de estado para controlar qual tela está ativa
+        self.current_state = 'main_menu' # 'main_menu', 'pvp_setup_menu', 'pvai_setup_menu', 'load_game_menu', 'settings_menu'
 
-                elif event.type == pygame.VIDEORESIZE:
-                    self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-                    self.screen_width, self.screen_height = event.w, event.h
+        # Configurações para o menu de Jogador vs IA
+        self.selected_ai_mode = "stockfish"
+        self.ai_modes = ["easy", "medium", "stockfish"] # Não inclui "local_player" aqui
 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.current_screen == 'main_menu':
-                        if self.button_ai_vs_player_rect.collidepoint(event.pos):
-                            self.current_screen = 'ai_difficulty_selection' # Mudar para tela de dificuldade
-                        elif self.button_player_vs_player_rect.collidepoint(event.pos):
-                            self.current_screen = 'time_control_selection' # Mudar para tela de controle de tempo
-                    elif self.current_screen == 'ai_difficulty_selection':
-                        if self.button_easy_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, False, 'easy')
-                        elif self.button_medium_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, False, 'medium')
-                        elif self.button_stockfish_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, False, 'stockfish')
-                        elif self.button_back_rect.collidepoint(event.pos):
-                            self.current_screen = 'main_menu' # Voltar ao menu principal
-                    elif self.current_screen == 'time_control_selection':
-                        if self.button_classic_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, True, None, 'classic')
-                        elif self.button_rapid_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, True, None, 'rapid')
-                        elif self.button_blitz_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, True, None, 'blitz')
-                        elif self.button_bullet_rect.collidepoint(event.pos):
-                            New_Game(self.FEN, True, None, 'bullet')
-                        elif self.button_back_time_rect.collidepoint(event.pos):
-                            self.current_screen = 'main_menu' # Voltar ao menu principal
+        # Configurações para o menu de Jogador vs Jogador (e talvez IA se for tempo)
+        self.selected_time_control = "classic"
+        self.time_controls = ["classic", "rapid", "blitz", "bullet"]
 
-            self.screen_width = self.screen.get_width()
-            self.screen_height = self.screen.get_height()
+        # Variáveis para a tela de carregamento de jogos
+        self.saved_games = {} # Será preenchido ao entrar na tela de load
+        self.scroll_offset = 0 # Para rolagem da lista de saves
+        self.item_height = 60 # Altura de cada item na lista de saves
 
-            self.screen.fill(self.WHITE) # Limpa a tela
+        self.run() # Inicia o loop principal do menu
 
-            if self.current_screen == 'main_menu':
-                self._draw_main_menu()
-            elif self.current_screen == 'ai_difficulty_selection':
-                self._draw_ai_difficulty_menu()
-            elif self.current_screen == 'time_control_selection':
-                self._draw_time_control_menu()
-
+    def run(self):
+        running = True
+        while running:
+            self.screen_width, self.screen_height = self.screen.get_size() # Atualiza as dimensões da tela
+            self._handle_events()
+            self._draw_screen()
             pygame.display.flip()
+            pygame.time.Clock().tick(60)
 
-        pygame.quit()
-        sys.exit()
+    def _handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.VIDEORESIZE:
+                self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1: # Botão esquerdo do mouse
+                    self._handle_click(event.pos)
+                elif event.button == 4: # Roda do mouse para cima
+                    if self.current_state == 'load_game_menu':
+                        self.scroll_offset = max(0, self.scroll_offset - self.item_height)
+                elif event.button == 5: # Roda do mouse para baixo
+                    if self.current_state == 'load_game_menu':
+                        total_height = len(self.saved_games) * self.item_height
+                        display_area_height = self.screen_height - 180 # Ajuste para o botão "Voltar"
+                        max_scroll = max(0, total_height - display_area_height)
+                        self.scroll_offset = min(max_scroll, self.scroll_offset + self.item_height)
+
+    def _handle_click(self, pos):
+        if self.current_state == 'main_menu':
+            if self.pvp_button_rect.collidepoint(pos):
+                self.current_state = 'pvp_setup_menu'
+            elif self.pvai_button_rect.collidepoint(pos):
+                self.current_state = 'pvai_setup_menu'
+            elif self.load_game_button_rect.collidepoint(pos):
+                self.current_state = 'load_game_menu'
+                self.saved_games = self.save_manager.load_all_saves() # Carrega os saves ao entrar no menu
+                self.scroll_offset = 0 # Reseta a rolagem
+            elif self.settings_button_rect.collidepoint(pos):
+                self._run_settings() # Placeholder para futuras configurações
+            elif self.exit_button_rect.collidepoint(pos):
+                pygame.quit()
+                sys.exit()
+        elif self.current_state == 'pvp_setup_menu':
+            # Lógica para botões de seleção de controle de tempo (PvP)
+            for i, control in enumerate(self.time_controls):
+                rect = self._get_time_control_button_rect(i)
+                if rect.collidepoint(pos):
+                    self.selected_time_control = control
+
+            if self.start_game_button_rect.collidepoint(pos):
+                self._start_pvp_game()
+            elif self.back_button_rect.collidepoint(pos):
+                self.current_state = 'main_menu'
+        elif self.current_state == 'pvai_setup_menu':
+            # Lógica para botões de seleção de IA (PvAI)
+            for i, mode in enumerate(self.ai_modes):
+                rect = self._get_ai_mode_button_rect(i)
+                if rect.collidepoint(pos):
+                    self.selected_ai_mode = mode
+
+            if self.start_game_button_rect.collidepoint(pos):
+                self._start_pvai_game()
+            elif self.back_button_rect.collidepoint(pos):
+                self.current_state = 'main_menu'
+        elif self.current_state == 'load_game_menu':
+            self._handle_load_game_click(pos)
+
+    def _handle_load_game_click(self, pos):
+        # Botão Voltar
+        if self.back_button_rect_load.collidepoint(pos):
+            self.current_state = 'main_menu'
+            return
+
+        # Lógica para botões de carregamento de jogo
+        y_offset = 100 - self.scroll_offset # Posição inicial da lista ajustada pela rolagem
+        for name, data in self.saved_games.items():
+            button_rect = pygame.Rect(
+                (self.screen_width - 400) // 2, y_offset, 400, self.item_height - 10
+            )
+            # Verifica se o botão está visível na tela antes de verificar o clique
+            if button_rect.collidepoint(pos) and y_offset >= 100 and y_offset < self.screen_height - 80:
+                self._load_saved_game(name, data)
+                return # Sai após carregar o jogo
+            y_offset += self.item_height # Incrementa para o próximo item
+
+    def _draw_screen(self):
+        self.screen.fill((30, 30, 30)) # Fundo escuro para todas as telas
+
+        if self.current_state == 'main_menu':
+            self._draw_main_menu()
+        elif self.current_state == 'pvp_setup_menu':
+            self._draw_pvp_setup_menu()
+        elif self.current_state == 'pvai_setup_menu':
+            self._draw_pvai_setup_menu()
+        elif self.current_state == 'load_game_menu':
+            self._draw_load_game_menu()
+        # elif self.current_state == 'settings_menu':
+        #     self._draw_settings_menu() # Para futuras implementações
 
     def _draw_main_menu(self):
-        # Configurações de botões para o menu principal
-        button_width = 180
-        button_height = 70
-        spacing = 30
-        total_height = 2 * button_height + spacing
-        start_y = (self.screen_height - total_height) // 2
-        button_x = (self.screen_width - button_width) // 2
+        title_text = self.big_font.render("AI Chess Game", True, self.WHITE)
+        title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 4))
+        self.screen.blit(title_text, title_rect)
 
-        self.button_ai_vs_player_rect = pygame.Rect(button_x, start_y, button_width, button_height)
-        self.button_player_vs_player_rect = pygame.Rect(button_x - 10, start_y + button_height + spacing, button_width + 20, button_height)
-
-        mouse_pos = pygame.mouse.get_pos()
-
-        # Desenha botões do menu principal
-        color_ai_vs_player = self.DARK_BLUE if self.button_ai_vs_player_rect.collidepoint(mouse_pos) else self.BLUE
-        color_player_vs_player = self.DARK_BLUE if self.button_player_vs_player_rect.collidepoint(mouse_pos) else self.BLUE
-
-        pygame.draw.rect(self.screen, color_ai_vs_player, self.button_ai_vs_player_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_player_vs_player, self.button_player_vs_player_rect, border_radius=12)
-
-        text_surface_ai_vs_player = self.font.render("IA VS Jogador", True, self.WHITE)
-        text_rect_ai_vs_player = text_surface_ai_vs_player.get_rect(center=self.button_ai_vs_player_rect.center)
-        self.screen.blit(text_surface_ai_vs_player, text_rect_ai_vs_player)
-
-        text_surface_player_vs_player = self.font.render("Jogador VS Jogador", True, self.WHITE)
-        text_rect_player_vs_player = text_surface_player_vs_player.get_rect(center=self.button_player_vs_player_rect.center)
-        self.screen.blit(text_surface_player_vs_player, text_rect_player_vs_player)
-
-    def _draw_ai_difficulty_menu(self):
-        # Configurações de botões para a seleção de dificuldade
-        button_width = 200
+        button_width = 250
         button_height = 60
         spacing = 20
-        total_height = 3 * button_height + 2 * spacing + 50 # +50 para o botão Voltar
-        start_y = (self.screen_height - total_height) // 2
-        button_x = (self.screen_width - button_width) // 2
+        start_y = self.screen_height // 2 - (button_height * 2.5 + spacing * 2) / 2 # Ajuste para 4 botões
 
-        # Título
-        title_surface = self.font.render("Escolha a Dificuldade da IA", True, (50, 50, 50))
-        title_rect = title_surface.get_rect(center=(self.screen_width // 2, start_y - 40))
-        self.screen.blit(title_surface, title_rect)
+        # Player vs Player Button
+        self.pvp_button_rect = pygame.Rect(
+            (self.screen_width - button_width) // 2, start_y, button_width, button_height
+        )
+        self._draw_button(self.pvp_button_rect, "Jogador vs Jogador")
 
-        self.button_easy_rect = pygame.Rect(button_x, start_y, button_width, button_height)
-        self.button_medium_rect = pygame.Rect(button_x, start_y + button_height + spacing, button_width, button_height)
-        self.button_stockfish_rect = pygame.Rect(button_x, start_y + 2 * (button_height + spacing), button_width, button_height)
+        # Player vs AI Button
+        self.pvai_button_rect = pygame.Rect(
+            (self.screen_width - button_width) // 2, self.pvp_button_rect.bottom + spacing, button_width, button_height
+        )
+        self._draw_button(self.pvai_button_rect, "Jogador vs IA")
+
+        # Load Game Button
+        self.load_game_button_rect = pygame.Rect(
+            (self.screen_width - button_width) // 2, self.pvai_button_rect.bottom + spacing, button_width, button_height
+        )
+        self._draw_button(self.load_game_button_rect, "Carregar Jogo")
+
+        # Settings Button
+        self.settings_button_rect = pygame.Rect(
+            (self.screen_width - button_width) // 2, self.load_game_button_rect.bottom + spacing, button_width, button_height
+        )
+        self._draw_button(self.settings_button_rect, "Configurações")
+
+        # Exit Button
+        self.exit_button_rect = pygame.Rect(
+            (self.screen_width - button_width) // 2, self.settings_button_rect.bottom + spacing, button_width, button_height
+        )
+        self._draw_button(self.exit_button_rect, "Sair")
+
+    def _draw_pvp_setup_menu(self):
+        title_text = self.big_font.render("Jogador vs Jogador", True, self.WHITE)
+        title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
+        self.screen.blit(title_text, title_rect)
+
+        # Time Control Selection
+        time_label = self.font.render("Selecione o Controle de Tempo:", True, self.WHITE)
+        self.screen.blit(time_label, (self.screen_width // 2 - 200, 150))
+        for i, control in enumerate(self.time_controls):
+            rect = self._get_time_control_button_rect(i)
+            self._draw_button(rect, control, self.selected_time_control == control)
+
+        # Start Game Button
+        self.start_game_button_rect = pygame.Rect(
+            (self.screen_width - 200) // 2, self.screen_height - 150, 200, 60
+        )
+        self._draw_button(self.start_game_button_rect, "Iniciar Partida")
+
+        # Back Button
+        self.back_button_rect = pygame.Rect(
+            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+        )
+        self._draw_button(self.back_button_rect, "Voltar")
+
+    def _draw_pvai_setup_menu(self):
+        title_text = self.big_font.render("Jogador vs IA", True, self.WHITE)
+        title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
+        self.screen.blit(title_text, title_rect)
+
+        # AI Mode Selection
+        ai_label = self.font.render("Selecione a Dificuldade da IA:", True, self.WHITE)
+        self.screen.blit(ai_label, (self.screen_width // 2 - 200, 150))
+        for i, mode in enumerate(self.ai_modes):
+            rect = self._get_ai_mode_button_rect(i)
+            self._draw_button(rect, mode, self.selected_ai_mode == mode)
+
+        # Start Game Button
+        self.start_game_button_rect = pygame.Rect(
+            (self.screen_width - 200) // 2, self.screen_height - 150, 200, 60
+        )
+        self._draw_button(self.start_game_button_rect, "Iniciar Partida")
+
+        # Back Button
+        self.back_button_rect = pygame.Rect(
+            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+        )
+        self._draw_button(self.back_button_rect, "Voltar")
+
+    def _draw_load_game_menu(self):
+        title_text = self.big_font.render("Carregar Jogo", True, self.WHITE)
+        title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
+        self.screen.blit(title_text, title_rect)
+
+        # Desenha a lista de jogos salvos
+        display_area_start_y = 100
+        display_area_height = self.screen_height - 180 # Ajuste para o botão "Voltar"
+        
+        # Cria uma superfície temporária para desenhar os itens roláveis
+        temp_surface = pygame.Surface((self.screen_width, max(display_area_height, len(self.saved_games) * self.item_height)), pygame.SRCALPHA)
+        temp_surface.fill((0,0,0,0)) # Transparente
+
+        y_offset_in_temp = 0
+        if not self.saved_games:
+            no_saves_text = self.font.render("Nenhum jogo salvo.", True, self.GRAY)
+            no_saves_rect = no_saves_text.get_rect(center=(self.screen_width // 2, display_area_height // 2))
+            temp_surface.blit(no_saves_text, no_saves_rect)
+        else:
+            for name, data in self.saved_games.items():
+                item_rect = pygame.Rect(
+                    (self.screen_width - 400) // 2, y_offset_in_temp, 400, self.item_height - 10
+                )
+                self._draw_button_on_surface(temp_surface, item_rect, name)
+                y_offset_in_temp += self.item_height
+            
+        # Blit a superfície temporária na tela, aplicando o scroll_offset
+        self.screen.blit(temp_surface, (0, display_area_start_y - self.scroll_offset))
+
 
         # Botão Voltar
-        self.button_back_rect = pygame.Rect(button_x, self.button_stockfish_rect.bottom + spacing * 1.5, button_width, button_height)
+        self.back_button_rect_load = pygame.Rect(
+            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+        )
+        self._draw_button(self.back_button_rect_load, "Voltar")
 
 
+    def _draw_button(self, rect, text, selected=False):
+        color = self.DARK_BLUE if selected else self.BLUE
         mouse_pos = pygame.mouse.get_pos()
+        if rect.collidepoint(mouse_pos):
+            color = self.BLUE if selected else self.DARK_BLUE # Inverte as cores no hover
+        
+        pygame.draw.rect(self.screen, color, rect, border_radius=12)
+        label = self.font.render(text, True, self.WHITE)
+        label_rect = label.get_rect(center=rect.center)
+        self.screen.blit(label, label_rect)
 
-        # Desenha botões de dificuldade
-        color_easy = self.DARK_BLUE if self.button_easy_rect.collidepoint(mouse_pos) else self.BLUE
-        color_medium = self.DARK_BLUE if self.button_medium_rect.collidepoint(mouse_pos) else self.BLUE
-        color_stockfish = self.DARK_BLUE if self.button_stockfish_rect.collidepoint(mouse_pos) else self.BLUE
-        color_back = self.DARK_BLUE if self.button_back_rect.collidepoint(mouse_pos) else self.BLUE
+    def _draw_button_on_surface(self, surface, rect, text, selected=False):
+        color = self.DARK_BLUE if selected else self.BLUE
+        # Não verifica mouse_pos aqui, pois é uma superfície temporária
+        
+        pygame.draw.rect(surface, color, rect, border_radius=12)
+        label = self.font.render(text, True, self.WHITE)
+        label_rect = label.get_rect(center=rect.center)
+        surface.blit(label, label_rect)
 
 
-        pygame.draw.rect(self.screen, color_easy, self.button_easy_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_medium, self.button_medium_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_stockfish, self.button_stockfish_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_back, self.button_back_rect, border_radius=12)
+    def _get_ai_mode_button_rect(self, index):
+        button_width = 150
+        button_height = 50
+        spacing = 10
+        x_start = self.screen_width // 2 - (len(self.ai_modes) * (button_width + spacing) - spacing) // 2
+        return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)
 
+    def _get_time_control_button_rect(self, index):
+        button_width = 150
+        button_height = 50
+        spacing = 10
+        x_start = self.screen_width // 2 - (len(self.time_controls) * (button_width + spacing) - spacing) // 2
+        return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)
 
-        text_surface_easy = self.font.render("Fácil", True, self.WHITE)
-        text_rect_easy = text_surface_easy.get_rect(center=self.button_easy_rect.center)
-        self.screen.blit(text_surface_easy, text_rect_easy)
+    def _start_pvp_game(self):
+        # Inicia um jogo Jogador vs Jogador
+        print(f"DEBUG: Starting PvP game with time control: {self.selected_time_control}")
+        main(self.FEN, True, None, self.selected_time_control, None, None, loaded_save_name=None)
+        self.current_state = 'main_menu' # Volta para o menu principal após a partida
 
-        text_surface_medium = self.font.render("Médio", True, self.WHITE)
-        text_rect_medium = text_surface_medium.get_rect(center=self.button_medium_rect.center)
-        self.screen.blit(text_surface_medium, text_rect_medium)
+    def _start_pvai_game(self):
+        # Inicia um jogo Jogador vs IA
+        config = self.load_config_from_main()
+        skill_level = config["skill_level"]
+        thinking_time = config["thinking_time"]
+        print(f"DEBUG: Starting PvAI game with AI: {self.selected_ai_mode}, Skill: {skill_level}, Time: {thinking_time}")
+        main(self.FEN, False, self.selected_ai_mode, None, None, None, loaded_save_name=None)
+        self.current_state = 'main_menu' # Volta para o menu principal após a partida
 
-        text_surface_stockfish = self.font.render("Stockfish", True, self.WHITE)
-        text_rect_stockfish = text_surface_stockfish.get_rect(center=self.button_stockfish_rect.center)
-        self.screen.blit(text_surface_stockfish, text_rect_stockfish)
+    def _load_saved_game(self, save_name, save_data):
+        print(f"DEBUG: _load_saved_game called. Loading save: {save_name}")
+        FEN = save_data.get("FEN", self.FEN)
+        local = save_data.get("local", False)
+        ai_type = save_data.get("ai_type", None)
+        skill_level = save_data.get("skill_level", None)
+        thinking_time = save_data.get("thinking_time", None)
+        time_control = save_data.get("time_control", None)
+        white_time_left = save_data.get("white_time_left", None)
+        black_time_left = save_data.get("black_time_left", None)
 
-        text_surface_back = self.small_font.render("Voltar", True, self.WHITE)
-        text_rect_back = text_surface_back.get_rect(center=self.button_back_rect.center)
-        self.screen.blit(text_surface_back, text_rect_back)
+        main(FEN, local, ai_type, time_control, white_time_left, black_time_left, loaded_save_name=save_name)
+        self.current_state = 'main_menu' # Volta para o menu principal após a partida
 
-    def _draw_time_control_menu(self):
-        # Configurações de botões para a seleção de controle de tempo
-        button_width = 200
-        button_height = 60
-        spacing = 20
-        total_height = 4 * button_height + 3 * spacing + 50 # +50 para o botão Voltar
-        start_y = (self.screen_height - total_height) // 2
-        button_x = (self.screen_width - button_width) // 2
+    def _run_settings(self):
+        print("Abrindo configurações...")
+        # self.current_state = 'settings_menu' # Para futuras implementações
+        pass
 
-        # Título
-        title_surface = self.font.render("Escolha o Controle de Tempo", True, (50, 50, 50))
-        title_rect = title_surface.get_rect(center=(self.screen_width // 2, start_y - 40))
-        self.screen.blit(title_surface, title_rect)
+    def load_config_from_main(self):
+        from src.main import load_config as main_load_config
+        return main_load_config()
 
-        self.button_classic_rect = pygame.Rect(button_x, start_y, button_width, button_height)
-        self.button_rapid_rect = pygame.Rect(button_x, start_y + button_height + spacing, button_width, button_height)
-        self.button_blitz_rect = pygame.Rect(button_x, start_y + 2 * (button_height + spacing), button_width, button_height)
-        self.button_bullet_rect = pygame.Rect(button_x, start_y + 3 * (button_height + spacing), button_width, button_height)
-
-        # Botão Voltar
-        self.button_back_time_rect = pygame.Rect(button_x, self.button_bullet_rect.bottom + spacing * 1.5, button_width, button_height)
-
-        mouse_pos = pygame.mouse.get_pos()
-
-        # Desenha botões de controle de tempo
-        color_classic = self.DARK_BLUE if self.button_classic_rect.collidepoint(mouse_pos) else self.BLUE
-        color_rapid = self.DARK_BLUE if self.button_rapid_rect.collidepoint(mouse_pos) else self.BLUE
-        color_blitz = self.DARK_BLUE if self.button_blitz_rect.collidepoint(mouse_pos) else self.BLUE
-        color_bullet = self.DARK_BLUE if self.button_bullet_rect.collidepoint(mouse_pos) else self.BLUE
-        color_back_time = self.DARK_BLUE if self.button_back_time_rect.collidepoint(mouse_pos) else self.BLUE
-
-        pygame.draw.rect(self.screen, color_classic, self.button_classic_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_rapid, self.button_rapid_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_blitz, self.button_blitz_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_bullet, self.button_bullet_rect, border_radius=12)
-        pygame.draw.rect(self.screen, color_back_time, self.button_back_time_rect, border_radius=12)
-
-        text_surface_classic = self.font.render("Clássico", True, self.WHITE)
-        text_rect_classic = text_surface_classic.get_rect(center=self.button_classic_rect.center)
-        self.screen.blit(text_surface_classic, text_rect_classic)
-
-        text_surface_rapid = self.font.render("Rápido", True, self.WHITE)
-        text_rect_rapid = text_surface_rapid.get_rect(center=self.button_rapid_rect.center)
-        self.screen.blit(text_surface_rapid, text_rect_rapid)
-
-        text_surface_blitz = self.font.render("Blitz", True, self.WHITE)
-        text_rect_blitz = text_surface_blitz.get_rect(center=self.button_blitz_rect.center)
-        self.screen.blit(text_surface_blitz, text_rect_blitz)
-
-        text_surface_bullet = self.font.render("Bullet", True, self.WHITE)
-        text_rect_bullet = text_surface_bullet.get_rect(center=self.button_bullet_rect.center)
-        self.screen.blit(text_surface_bullet, text_rect_bullet)
-
-        text_surface_back_time = self.small_font.render("Voltar", True, self.WHITE)
-        text_rect_back_time = text_surface_back_time.get_rect(center=self.button_back_time_rect.center)
-        self.screen.blit(text_surface_back_time, text_rect_back_time)

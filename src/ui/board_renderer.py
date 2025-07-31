@@ -36,6 +36,7 @@ class BoardRenderer():
         self.piece_map = {
             'r': "black_rook", 'n': "black_knight", 'b': "black_bishop",
             'q': "black_queen", 'k': "black_king", 'p': "black_pawn",
+            
             'R': "white_rook", 'N': "white_knight", 'B': "white_bishop",
             'Q': "white_queen", 'K': "white_king", 'P': "white_pawn"
         }
