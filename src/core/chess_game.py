@@ -2,11 +2,7 @@
 Main class for managing the chess game state.
 Encapsulates a chess.Board object and methods for game manipulation.
 """
-
-try:
-    import chess
-except ImportError:
-    print("Warning: python-chess not installed. Please install with: pip install python-chess")
+import chess
 
 class ChessGame():
     """

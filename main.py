@@ -11,12 +11,12 @@ from src.ia.medium_ai import MediumAI
 from src.ia.stockfish_ai import StockfishAI
 from src.data.save_manager import SaveManager
 from src.core.chess_game import ChessGame
-from src.ui import game_modes # Importa o módulo game_modes
+from src.ui import game_modes 
 import ctypes
 
-# --- Configurações globais ---
+
 CONFIG_PATH = "config.json"
-DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" # FEN inicial de um tabuleiro padrão
+DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" # Initial FEN for a standard board
 
 def load_config():
     if os.path.exists(CONFIG_PATH):
@@ -33,30 +33,30 @@ def save_config(selected_ai, skill_level, thinking_time):
         }, f)
 
 def run_main():
-    # Inicializa o Pygame e o mixer de áudio uma única vez aqui
+    # Initialize Pygame and the audio mixer once here
     pygame.init()
     pygame.mixer.init()
 
-    # Obtém as dimensões da tela
+    # Get screen dimensions
     info = pygame.display.Info()
     screen_w, screen_h = info.current_w, info.current_h
 
-    # Cria a tela principal do Pygame (janela)
+    # Create the main Pygame screen (window)
     screen = pygame.display.set_mode((screen_w, screen_h - 10), pygame.RESIZABLE)
     ctypes.windll.user32.ShowWindow(pygame.display.get_wm_info()['window'], 3)
     pygame.display.set_caption("AI Chess Game")
 
-    # Instância do SaveManager para ser usada no menu
+    # Instance of SaveManager to be used in the menu
     save_manager_instance = SaveManager()
 
-    # Inicia o loop principal do menu de modos de jogo
-    # Passamos a superfície 'screen' e a instância de 'save_manager_instance'
-    # para a classe GameModes, que agora gerenciará o menu principal.
-    game_modes.GameModes(screen, save_manager_instance) # CORRIGIDO: Era game_modes.GameModes_windows
+    # Start the main loop of the game modes menu
+    # We pass the 'screen' surface and the 'save_manager_instance' instance
+    # to the GameModes class, which will now manage the main menu.
+    game_modes.GameModes(screen, save_manager_instance) 
 
-    # Encerra o Pygame apenas quando o programa principal finalizar completamente
+    # Quit Pygame only when the main program finishes completely
     pygame.quit() 
-    sys.exit() # Garante que o programa seja encerrado
+    sys.exit() # Ensures the program is terminated
 
 if __name__ == "__main__":
     run_main()
