@@ -72,7 +72,7 @@ Tasks marked as **"All Together"** are the responsibility of the entire team.
 
 ### Developer B (Main Focus: Final UX and Aesthetics)
 
-- [ ] **3.B.1 Pawn Promotion:** Implement UI for piece choice in promotion.
+- [X] **3.B.1 Pawn Promotion:** Implement UI for piece choice in promotion.
 - [ ] **3.B.2 End Game Screens:** Create dedicated screens for match results.
 - [ ] **3.B.3 General Visual Refinement:** Adjust colors, fonts, layouts, and visual themes.
 - [ ] **3.B.4 Enhanced Audio Feedback:** Add background music and other sounds.

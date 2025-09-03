@@ -23,7 +23,7 @@ __author__ = "Chess Game Team: Insert your name here"
 from .board_renderer import BoardRenderer
 from .asset_manager import AssetManager
 from .audio_manager import AudioManager
-from .game_modes import GameModes
+from .Game_modes import GameModes
 
 __all__ = [
     "BoardRenderer",

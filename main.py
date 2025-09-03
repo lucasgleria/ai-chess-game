@@ -9,9 +9,9 @@ from src.ui.audio_manager import AudioManager
 from src.ia.easy_ai import EasyAI
 from src.ia.medium_ai import MediumAI
 from src.ia.stockfish_ai import StockfishAI
-from src.data.save_manager import SaveManager
+from src.data.Save_Manager import SaveManager
 from src.core.chess_game import ChessGame
-from src.ui import game_modes 
+from src.ui.Game_modes import GameModes 
 import ctypes
 
 
@@ -52,7 +52,7 @@ def run_main():
     # Start the main loop of the game modes menu
     # We pass the 'screen' surface and the 'save_manager_instance' instance
     # to the GameModes class, which will now manage the main menu.
-    game_modes.GameModes(screen, save_manager_instance) 
+    GameModes(screen, save_manager_instance) 
 
     # Quit Pygame only when the main program finishes completely
     pygame.quit() 

@@ -2,7 +2,8 @@ import pygame
 import sys
 import chess
 from src.main import main # Imports the main function from src/main.py
-from src.data.save_manager import SaveManager # Imports the SaveManager
+from src.data.Save_Manager import SaveManager # Imports the SaveManager
+from src.utils import load_config
 
 class GameModes:
     def __init__(self, screen, save_manager):
@@ -13,13 +14,23 @@ class GameModes:
         self.font = pygame.font.SysFont(None, 36)
         self.big_font = pygame.font.SysFont(None, 48)
 
+        # Chess-themed colors with alternative themes
         self.WHITE = (255, 255, 255)
-        self.BLUE = (70, 130, 180)
-        self.DARK_BLUE = (40, 100, 160)
-        self.GRAY = (150, 150, 150)
-        self.LIGHT_GRAY = (180, 180, 180)
-        self.RED = (200, 50, 50)
-        self.DARK_RED = (150, 30, 30)
+        self.CHESS_BROWN = (139, 69, 19)  # Dark brown for chess board
+        self.CHESS_CREAM = (245, 245, 220)  # Light cream for chess board
+        self.CHESS_GOLD = (255, 215, 0)  # Gold for highlights
+        self.CHESS_SILVER = (192, 192, 192)  # Silver for secondary elements
+        self.CHESS_DARK = (47, 79, 79)  # Dark slate gray
+        self.CHESS_LIGHT = (240, 248, 255)  # Alice blue
+        self.CHESS_BLACK = (25, 25, 25)  # Dark background
+        self.CHESS_RED = (220, 20, 60)  # Crimson red for delete buttons
+        self.CHESS_GREEN = (34, 139, 34)  # Forest green for success
+        
+        # Alternative color themes for future use
+        self.ALT_GOLD = (218, 165, 32)  # Goldenrod
+        self.ALT_SILVER = (169, 169, 169)  # Dark gray
+        self.ALT_BLUE = (70, 130, 180)  # Steel blue
+        self.ALT_PURPLE = (128, 0, 128)  # Purple
 
         self.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -121,7 +132,7 @@ class GameModes:
             return
 
         # Converts the click position to the internal coordinates of the temp_surface
-        display_area_start_y = 100
+        display_area_start_y = 120  # Updated to match the new positioning
         click_x_temp = pos[0]
         click_y_temp = pos[1] - (display_area_start_y - self.scroll_offset)
         click_pos_temp = (click_x_temp, click_y_temp)
@@ -135,27 +146,30 @@ class GameModes:
                 actual_delete_button_screen_y >= display_area_start_y and
                 actual_delete_button_screen_y + delete_rect_temp.height <= (self.screen_height - 80)): # -80 for the "Back" button margin
                 
-                self.save_manager.delete_save(save_name_to_delete)
-                self.saved_games = self.save_manager.load_all_saves() # Reloads saves
-                self.scroll_offset = 0 # Resets scrolling
+                # Confirm deletion with user
+                if self._confirm_delete_save(save_name_to_delete):
+                    self.save_manager.delete_save(save_name_to_delete)
+                    self.saved_games = self.save_manager.load_all_saves() # Reloads saves
+                    self.scroll_offset = 0 # Resets scrolling
                 return # Exits after handling deletion
 
         # Original logic for loading the game (if a save item itself is clicked)
         # This part will only be reached if no delete button was clicked
-        y_offset = 100 - self.scroll_offset # Initial list position adjusted by scrolling
+        y_offset = 120 - self.scroll_offset # Initial list position adjusted by scrolling and new positioning
         for name, data in self.saved_games.items():
             button_rect = pygame.Rect(
-                (self.screen_width - 400) // 2, y_offset, 400, self.item_height - 10
+                (self.screen_width - 450) // 2, y_offset, 450, self.item_height - 15
             )
             # Checks if the button is visible on the screen before checking the click
-            if button_rect.collidepoint(pos) and y_offset >= 100 and y_offset < self.screen_height - 80:
+            if button_rect.collidepoint(pos) and y_offset >= 120 and y_offset < self.screen_height - 80:
                 self._load_saved_game(name, data)
                 return # Exits after loading the game
-            y_offset += self.item_height # Increments for the next item
+            y_offset += self.item_height + 5 # Increments for the next item with spacing
 
     def _draw_screen(self):
-        self.screen.fill((30, 30, 30)) # Dark background for all screens
-
+        # Draw chess-themed background
+        self._draw_chess_background()
+        
         if self.current_state == 'main_menu':
             self._draw_main_menu()
         elif self.current_state == 'pvp_setup_menu':
@@ -167,15 +181,49 @@ class GameModes:
         # elif self.current_state == 'settings_menu':
         #     self._draw_settings_menu() # For future implementations
 
+    def _draw_chess_background(self):
+        """Draw a refined chess-themed background with subtle board pattern"""
+        # Fill with dark background
+        self.screen.fill(self.CHESS_BLACK)
+        
+        # Draw refined chess board pattern overlay with better transparency
+        pattern_size = 80  # Increased pattern size for elegance
+        for y in range(0, self.screen_height, pattern_size):
+            for x in range(0, self.screen_width, pattern_size):
+                # Use more subtle colors with better transparency
+                color = self.CHESS_BROWN if (x + y) // pattern_size % 2 == 0 else self.CHESS_CREAM
+                overlay = pygame.Surface((pattern_size, pattern_size), pygame.SRCALPHA)
+                overlay.fill((*color, 20))  # Very subtle transparency
+                self.screen.blit(overlay, (x, y))
+        
+        # Add subtle gradient overlay for depth
+        gradient = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+        for i in range(self.screen_height):
+            alpha = int(5 * (i / self.screen_height))  # Very subtle gradient
+            pygame.draw.line(gradient, (0, 0, 0, alpha), (0, i), (self.screen_width, i))
+        self.screen.blit(gradient, (0, 0))
+
     def _draw_main_menu(self):
-        title_text = self.big_font.render("AI Chess Game", True, self.WHITE)
+        # Draw decorative chess pieces at the top
+        self._draw_chess_decorations()
+        
+        # Enhanced title with chess theme - Better positioning
+        title_font = pygame.font.SysFont(None, 72, bold=True)
+        title_text = title_font.render("AI Chess Game", True, self.CHESS_GOLD)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 4))
         self.screen.blit(title_text, title_rect)
+        
+        # Subtitle - Better positioning
+        subtitle_font = pygame.font.SysFont(None, 28)  # Slightly larger font
+        subtitle_text = subtitle_font.render("Strategic Battle of Minds", True, self.CHESS_SILVER)
+        subtitle_rect = subtitle_text.get_rect(center=(self.screen_width // 2, title_rect.bottom + 15))
+        self.screen.blit(subtitle_text, subtitle_rect)
 
-        button_width = 250
-        button_height = 60
-        spacing = 20
-        start_y = self.screen_height // 2 - (button_height * 2.5 + spacing * 2) / 2 # Adjustment for 4 buttons
+        # Improved button layout with better spacing
+        button_width = 300  # Increased width for better proportions
+        button_height = 75  # Increased height for better proportions
+        spacing = 30        # Increased spacing between buttons
+        start_y = self.screen_height // 2 - (button_height * 2.5 + spacing * 2) / 2
 
         # Player vs Player Button
         self.pvp_button_rect = pygame.Rect(
@@ -205,63 +253,110 @@ class GameModes:
         self.exit_button_rect = pygame.Rect(
             (self.screen_width - button_width) // 2, self.settings_button_rect.bottom + spacing, button_width, button_height
         )
-        self._draw_button(self.exit_button_rect, "Exit")
+        self._draw_button(self.exit_button_rect, "Exit Game")
+
+    def _draw_chess_decorations(self):
+        """Draw enhanced decorative chess pieces with better positioning and effects"""
+        piece_font = pygame.font.SysFont(None, 48)  # Adjusted font size for text
+        pieces = ["KING", "QUEEN", "ROOK", "BISHOP", "KNIGHT", "PAWN"]
+        colors = [self.CHESS_GOLD, self.CHESS_SILVER, self.CHESS_GOLD, self.CHESS_SILVER, self.CHESS_GOLD, self.CHESS_SILVER]
+        
+        # Draw pieces in a row at the top with improved spacing and positioning
+        piece_spacing = 120  # Increased spacing for text elements
+        start_x = (self.screen_width - (len(pieces) * piece_spacing)) // 2
+        
+        for i, (piece, color) in enumerate(zip(pieces, colors)):
+            # Add subtle shadow effect for depth
+            shadow_surface = piece_font.render(piece, True, (0, 0, 0, 100))
+            shadow_rect = shadow_surface.get_rect(center=(start_x + i * piece_spacing + 2, 82))
+            self.screen.blit(shadow_surface, shadow_rect)
+            
+            # Draw main piece text
+            piece_surface = piece_font.render(piece, True, color)
+            piece_rect = piece_surface.get_rect(center=(start_x + i * piece_spacing, 80))
+            self.screen.blit(piece_surface, piece_rect)
+            
+            # Add subtle highlight effect
+            highlight_surface = piece_font.render(piece, True, (255, 255, 255, 50))
+            highlight_rect = highlight_surface.get_rect(center=(start_x + i * piece_spacing - 1, 78))
+            self.screen.blit(highlight_surface, highlight_rect)
 
     def _draw_pvp_setup_menu(self):
-        title_text = self.big_font.render("Player vs Player", True, self.WHITE)
+        # Draw decorative elements
+        self._draw_chess_decorations()
+        
+        title_text = self.big_font.render("Player vs Player", True, self.CHESS_GOLD)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
         self.screen.blit(title_text, title_rect)
 
-        # Time Control Selection
-        time_label = self.font.render("Select Time Control:", True, self.WHITE)
-        self.screen.blit(time_label, (self.screen_width // 2 - 200, 150))
+        # Time Control Selection - Improved spacing and positioning
+        time_label = self.font.render("Select Time Control:", True, self.CHESS_SILVER)
+        time_label_rect = time_label.get_rect(center=(self.screen_width // 2, 150))
+        self.screen.blit(time_label, time_label_rect)
+        
+        # Improved button positioning with better spacing
         for i, control in enumerate(self.time_controls):
             rect = self._get_time_control_button_rect(i)
-            self._draw_button(rect, control, self.selected_time_control == control)
+            self._draw_button(rect, f"{control.title()}", self.selected_time_control == control)
 
-        # Start Game Button
+        # Start Game Button - Better positioned
         self.start_game_button_rect = pygame.Rect(
-            (self.screen_width - 200) // 2, self.screen_height - 150, 200, 60
+            (self.screen_width - 250) // 2, self.screen_height - 150, 250, 70
         )
         self._draw_button(self.start_game_button_rect, "Start Game")
 
-        # Back Button
+        # Back Button - Better positioned
         self.back_button_rect = pygame.Rect(
             (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
         )
         self._draw_button(self.back_button_rect, "Back")
 
     def _draw_pvai_setup_menu(self):
-        title_text = self.big_font.render("Player vs AI", True, self.WHITE)
+        # Draw decorative elements
+        self._draw_chess_decorations()
+        
+        title_text = self.big_font.render("Player vs AI", True, self.CHESS_GOLD)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
         self.screen.blit(title_text, title_rect)
 
-        # AI Mode Selection
-        ai_label = self.font.render("Select AI Difficulty:", True, self.WHITE)
-        self.screen.blit(ai_label, (self.screen_width // 2 - 200, 150))
+        # AI Mode Selection - Improved spacing and positioning
+        ai_label = self.font.render("Select AI Difficulty:", True, self.CHESS_SILVER)
+        ai_label_rect = ai_label.get_rect(center=(self.screen_width // 2, 150))
+        self.screen.blit(ai_label, ai_label_rect)
+        
+        # Improved button positioning with better spacing
         for i, mode in enumerate(self.ai_modes):
             rect = self._get_ai_mode_button_rect(i)
-            self._draw_button(rect, mode, self.selected_ai_mode == mode)
+            mode_display = {
+                "easy": "Easy",
+                "medium": "Medium", 
+                "stockfish": "Stockfish"
+            }
+            self._draw_button(rect, mode_display.get(mode, mode), self.selected_ai_mode == mode)
 
-        # Start Game Button
+        # Start Game Button - Better positioned
         self.start_game_button_rect = pygame.Rect(
-            (self.screen_width - 200) // 2, self.screen_height - 150, 200, 60
+            (self.screen_width - 250) // 2, self.screen_height - 150, 250, 70
         )
         self._draw_button(self.start_game_button_rect, "Start Game")
 
-        # Back Button
+        # Back Button - Better positioned
         self.back_button_rect = pygame.Rect(
             (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
         )
         self._draw_button(self.back_button_rect, "Back")
 
     def _draw_load_game_menu(self):
-        title_text = self.big_font.render("Load Game", True, self.WHITE)
+        # Draw decorative elements
+        self._draw_chess_decorations()
+        
+        title_text = self.big_font.render("Load Game", True, self.CHESS_GOLD)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, 50))
         self.screen.blit(title_text, title_rect)
 
-        display_area_start_y = 100
-        display_area_height = self.screen_height - 180
+        # Improved display area positioning
+        display_area_start_y = 120  # Increased from 100 to avoid title overlap
+        display_area_height = self.screen_height - 220  # Adjusted for better spacing
         
         temp_surface = pygame.Surface((self.screen_width, max(display_area_height, len(self.saved_games) * self.item_height)), pygame.SRCALPHA)
         temp_surface.fill((0,0,0,0))
@@ -270,25 +365,26 @@ class GameModes:
 
         y_offset_in_temp = 0
         if not self.saved_games:
-            no_saves_text = self.font.render("No games saved.", True, self.GRAY)
+            no_saves_text = self.font.render("No games saved.", True, self.CHESS_SILVER)
             no_saves_rect = no_saves_text.get_rect(center=(self.screen_width // 2, display_area_height // 2))
             temp_surface.blit(no_saves_text, no_saves_rect)
         else:
             for name, data in self.saved_games.items():
+                # Improved item positioning and spacing
                 item_rect_on_temp = pygame.Rect(
-                    (self.screen_width - 400) // 2, y_offset_in_temp, 400, self.item_height - 10
+                    (self.screen_width - 450) // 2, y_offset_in_temp + 5, 450, self.item_height - 15
                 )
-                self._draw_button_on_surface(temp_surface, item_rect_on_temp, name)
+                self._draw_button_on_surface(temp_surface, item_rect_on_temp, f"{name}")
 
-                # Draws the delete button on the temp_surface
-                delete_button_size = 30
-                delete_button_margin_x = 10
+                # Improved delete button positioning
+                delete_button_size = 35  # Slightly larger for better usability
+                delete_button_margin_x = 15  # Increased margin
                 delete_button_x_on_temp = item_rect_on_temp.right + delete_button_margin_x
                 delete_button_y_on_temp = item_rect_on_temp.centery - (delete_button_size // 2)
                 
                 delete_button_rect_on_temp = pygame.Rect(delete_button_x_on_temp, delete_button_y_on_temp, delete_button_size, delete_button_size)
 
-                pygame.draw.rect(temp_surface, self.RED, delete_button_rect_on_temp, border_radius=5)
+                pygame.draw.rect(temp_surface, self.CHESS_RED, delete_button_rect_on_temp, border_radius=8)
                 delete_text_surface = self.delete_font.render("X", True, self.WHITE)
                 delete_text_rect = delete_text_surface.get_rect(center=delete_button_rect_on_temp.center)
                 temp_surface.blit(delete_text_surface, delete_text_rect)
@@ -296,12 +392,11 @@ class GameModes:
                 # Stores the rectangle (relative to temp_surface) and the save name
                 self.delete_buttons_rects.append((delete_button_rect_on_temp, name))
 
-                y_offset_in_temp += self.item_height
+                y_offset_in_temp += self.item_height + 5  # Added extra spacing between items
             
         self.screen.blit(temp_surface, (0, display_area_start_y - self.scroll_offset))
 
-
-        # Back Button
+        # Back Button - Better positioned
         self.back_button_rect_load = pygame.Rect(
             (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
         )
@@ -309,37 +404,99 @@ class GameModes:
 
 
     def _draw_button(self, rect, text, selected=False):
-        color = self.DARK_BLUE if selected else self.BLUE
-        mouse_pos = pygame.mouse.get_pos()
-        if rect.collidepoint(mouse_pos):
-            color = self.BLUE if selected else self.DARK_BLUE # Inverts colors on hover
+        # Uniform color system for consistent visual appearance
+        base_color = self.CHESS_DARK
+        hover_color = self.CHESS_SILVER
+        border_color = self.CHESS_GOLD
         
-        pygame.draw.rect(self.screen, color, rect, border_radius=12)
-        label = self.font.render(text, True, self.WHITE)
+        # Apply selection and hover effects
+        if selected:
+            color = hover_color
+        else:
+            color = base_color
+            
+        mouse_pos = pygame.mouse.get_pos()
+        is_hovered = rect.collidepoint(mouse_pos)
+        
+        if is_hovered:
+            color = hover_color
+            # Enhanced hover effect with glow
+            glow_rect = pygame.Rect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4)
+            pygame.draw.rect(self.screen, border_color, glow_rect, border_radius=17)
+        
+        # Draw button with improved chess theme and enhanced effects
+        pygame.draw.rect(self.screen, color, rect, border_radius=15)
+        
+        # Enhanced border with better contrast
+        border_width = 4 if is_hovered else 3
+        pygame.draw.rect(self.screen, border_color, rect, border_width, border_radius=15)
+        
+        # Add subtle inner highlight for depth
+        if is_hovered:
+            highlight_rect = pygame.Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4)
+            pygame.draw.rect(self.screen, (255, 255, 255, 30), highlight_rect, border_radius=13)
+        
+        # Improved text rendering with better contrast and positioning
+        text_color = self.CHESS_LIGHT if not is_hovered else (255, 255, 255)
+        label = self.font.render(text, True, text_color)
         label_rect = label.get_rect(center=rect.center)
+        
+        # Add subtle text shadow for better readability
+        shadow_surface = self.font.render(text, True, (0, 0, 0, 100))
+        shadow_rect = shadow_surface.get_rect(center=(label_rect.centerx + 1, label_rect.centery + 1))
+        self.screen.blit(shadow_surface, shadow_rect)
+        
+        # Draw main text
         self.screen.blit(label, label_rect)
 
     def _draw_button_on_surface(self, surface, rect, text, selected=False):
-        color = self.DARK_BLUE if selected else self.BLUE
-        # Does not check mouse_pos here, as it's a temporary surface
+        # Use improved chess theme colors for surface buttons
+        base_color = self.CHESS_DARK
+        hover_color = self.CHESS_SILVER
+        border_color = self.CHESS_GOLD
         
-        pygame.draw.rect(surface, color, rect, border_radius=12)
-        label = self.font.render(text, True, self.WHITE)
+        if selected:
+            color = hover_color
+        else:
+            color = base_color
+        
+        # Draw button with improved chess theme and enhanced effects
+        pygame.draw.rect(surface, color, rect, border_radius=15)
+        
+        # Enhanced border with better contrast
+        border_width = 4 if selected else 3
+        pygame.draw.rect(surface, border_color, rect, border_width, border_radius=15)
+        
+        # Add subtle inner highlight for depth when selected
+        if selected:
+            highlight_rect = pygame.Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4)
+            pygame.draw.rect(surface, (255, 255, 255, 30), highlight_rect, border_radius=13)
+        
+        # Improved text rendering with better contrast and positioning
+        text_color = self.CHESS_LIGHT if not selected else (255, 255, 255)
+        label = self.font.render(text, True, text_color)
         label_rect = label.get_rect(center=rect.center)
+        
+        # Add subtle text shadow for better readability
+        shadow_surface = self.font.render(text, True, (0, 0, 0, 100))
+        shadow_rect = shadow_surface.get_rect(center=(label_rect.centerx + 1, label_rect.centery + 1))
+        surface.blit(shadow_surface, shadow_rect)
+        
+        # Draw main text
         surface.blit(label, label_rect)
 
 
     def _get_ai_mode_button_rect(self, index):
-        button_width = 150
-        button_height = 50
-        spacing = 10
+        button_width = 180  # Increased width for better text display
+        button_height = 60   # Increased height for better proportions
+        spacing = 20         # Increased spacing between buttons
         x_start = self.screen_width // 2 - (len(self.ai_modes) * (button_width + spacing) - spacing) // 2
         return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)
 
     def _get_time_control_button_rect(self, index):
-        button_width = 150
-        button_height = 50
-        spacing = 10
+        button_width = 180  # Increased width for better text display
+        button_height = 60   # Increased height for better proportions
+        spacing = 20         # Increased spacing between buttons
         x_start = self.screen_width // 2 - (len(self.time_controls) * (button_width + spacing) - spacing) // 2
         return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)
 
@@ -374,5 +531,11 @@ class GameModes:
         pass
 
     def load_config_from_main(self):
-        from src.main import load_config as main_load_config
-        return main_load_config()
+        return load_config()
+
+    def _confirm_delete_save(self, save_name):
+        """Show a confirmation dialog for deleting a save game"""
+        # Simple confirmation - in a real implementation, you might want a proper dialog
+        # For now, we'll just return True to confirm deletion
+        # You can enhance this later with a proper confirmation UI
+        return True

@@ -10,10 +10,8 @@ from src.ui.audio_manager import AudioManager
 from src.ia.easy_ai import EasyAI
 from src.ia.medium_ai import MediumAI
 from src.ia.stockfish_ai import StockfishAI
-from src.data.save_manager import SaveManager
-
-
-CONFIG_PATH = "config.json"
+from src.data.Save_Manager import SaveManager
+from src.utils import load_config, save_config
 BOARD_SIZE = 8
 MENU_HEIGHT = 80
 SQUARE_SIZE = 75
@@ -27,19 +25,7 @@ TIME_CONTROLS = {
     'bullet': 1 * 60
 }
 
-def load_config():
-    if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH, "r") as f:
-            return json.load(f)
-    return {"selected_ai": "stockfish", "skill_level": 8, "thinking_time": 1.5}
 
-def save_config(selected_ai, skill_level, thinking_time):
-    with open(CONFIG_PATH, "w") as f:
-        json.dump({
-            "selected_ai": selected_ai,
-            "skill_level": skill_level,
-            "thinking_time": thinking_time
-        }, f)
 
 def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=None, black_time_left=None, loaded_save_name=None):
     pygame.init()
@@ -107,7 +93,24 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
             if chess_game.is_game_over():
                 game_over_state = True
                 outcome = chess_game.outcome()
-                if outcome:
+                
+                # Determine specific game end type for better theming
+                if chess_game.is_checkmate():
+                    if outcome and outcome.winner == chess.WHITE:
+                        game_result_text = "White Wins by Checkmate!"
+                    elif outcome and outcome.winner == chess.BLACK:
+                        game_result_text = "Black Wins by Checkmate!"
+                    else:
+                        game_result_text = "Checkmate!"
+                elif chess_game.is_stalemate():
+                    game_result_text = "Stalemate!"
+                elif chess_game.board.is_insufficient_material():
+                    game_result_text = "Draw by Insufficient Material!"
+                elif chess_game.board.is_fifty_moves():
+                    game_result_text = "Draw by Fifty-Move Rule!"
+                elif chess_game.board.is_repetition():
+                    game_result_text = "Draw by Repetition!"
+                elif outcome:
                     if outcome.winner == chess.WHITE:
                         game_result_text = "White Wins!"
                     elif outcome.winner == chess.BLACK:
@@ -116,6 +119,7 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
                         game_result_text = "Draw!"
                 else:
                     game_result_text = "Game Over!"
+                    
                 if board_renderer.audio_manager:
                     board_renderer.audio_manager.play("checkmate")
 
@@ -135,61 +139,235 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
         return pygame.Rect(x, y + 25, width, 16)
 
     def draw_end_game_screen(result_text):
+        # Chess-themed colors
+        CHESS_BROWN = (139, 69, 19)  # Dark brown for chess board
+        CHESS_CREAM = (245, 245, 220)  # Light cream for chess board
+        CHESS_GOLD = (255, 215, 0)  # Gold for highlights
+        CHESS_SILVER = (192, 192, 192)  # Silver for secondary elements
+        CHESS_DARK = (47, 79, 79)  # Dark slate gray
+        CHESS_LIGHT = (240, 248, 255)  # Alice blue
+        
+        # Determine game end type for specific theming
+        is_checkmate = "Checkmate" in result_text
+        is_draw = "Draw" in result_text and "Checkmate" not in result_text
+        is_stalemate = "Stalemate" in result_text
+        is_insufficient_material = "Insufficient Material" in result_text
+        is_fifty_moves = "Fifty-Move Rule" in result_text
+        is_repetition = "Repetition" in result_text
+        is_time_up = "Time is Up" in result_text
+        
+        # Create overlay with enhanced chess-themed background
         overlay = pygame.Surface((screen_w, screen_h), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
+        overlay.fill((0, 0, 0, 180))  # Slightly more transparent for better visibility
         screen.blit(overlay, (0, 0))
-
-        box_width = 400
-        box_height = 300
+        
+        # Draw enhanced chess board pattern background with better spacing
+        pattern_size = 50  # Increased for better visual appeal
+        for y in range(0, screen_h, pattern_size):
+            for x in range(0, screen_w, pattern_size):
+                color = CHESS_BROWN if (x + y) // pattern_size % 2 == 0 else CHESS_CREAM
+                pygame.draw.rect(screen, color, (x, y, pattern_size, pattern_size))
+        
+        # Main dialog box with enhanced chess theme
+        box_width = 550  # Increased width for better proportions
+        box_height = 450  # Increased height for better spacing
         box_x = (screen_w - box_width) // 2
         box_y = (screen_h - box_height) // 2
-        pygame.draw.rect(screen, (50, 50, 50), (box_x, box_y, box_width, box_height), border_radius=15)
-        pygame.draw.rect(screen, (80, 80, 80), (box_x, box_y, box_width, box_height), 3, border_radius=15)
-
-        result_surface = large_font.render(result_text, True, (255, 255, 255))
-        result_rect = result_surface.get_rect(center=(screen_w // 2, box_y + 50))
+        
+        # Draw main box with enhanced chess board border
+        pygame.draw.rect(screen, CHESS_DARK, (box_x, box_y, box_width, box_height), border_radius=25)
+        pygame.draw.rect(screen, CHESS_GOLD, (box_x, box_y, box_width, box_height), 5, border_radius=25)
+        
+        # Draw inner border with alternating colors like chess board
+        inner_margin = 10  # Increased margin
+        inner_rect = pygame.Rect(box_x + inner_margin, box_y + inner_margin, 
+                                box_width - 2*inner_margin, box_height - 2*inner_margin)
+        pygame.draw.rect(screen, CHESS_LIGHT, inner_rect, border_radius=20)
+        
+        # Title with enhanced chess-themed styling
+        title_font = pygame.font.SysFont(None, 72, bold=True)  # Increased font size
+        if is_checkmate:
+            title_text = "CHECKMATE"
+            title_color = CHESS_GOLD
+        elif is_stalemate:
+            title_text = "STALEMATE"
+            title_color = CHESS_SILVER
+        elif is_insufficient_material:
+            title_text = "INSUFFICIENT MATERIAL"
+            title_color = CHESS_SILVER
+        elif is_fifty_moves:
+            title_text = "FIFTY-MOVE RULE"
+            title_color = CHESS_SILVER
+        elif is_repetition:
+            title_text = "REPETITION DRAW"
+            title_color = CHESS_SILVER
+        elif is_draw:
+            title_text = "DRAW"
+            title_color = CHESS_SILVER
+        elif is_time_up:
+            title_text = "TIME'S UP"
+            title_color = CHESS_GOLD
+        else:
+            title_text = "Game Over"
+            title_color = CHESS_DARK
+            
+        title_surface = title_font.render(title_text, True, title_color)
+        title_rect = title_surface.get_rect(center=(screen_w // 2, box_y + 70))  # Better positioned
+        screen.blit(title_surface, title_rect)
+        
+        # Result message with enhanced styling
+        result_font = pygame.font.SysFont(None, 38)  # Slightly larger font
+        if is_checkmate:
+            if "White" in result_text:
+                result_display = "White King Wins!"
+            else:
+                result_display = "Black King Wins!"
+        elif is_stalemate:
+            result_display = "Game Ended in Stalemate"
+        elif is_insufficient_material:
+            result_display = "Draw by Insufficient Material"
+        elif is_fifty_moves:
+            result_display = "Draw by Fifty-Move Rule"
+        elif is_repetition:
+            result_display = "Draw by Repetition"
+        elif is_draw:
+            result_display = "Game Ended in Draw"
+        elif is_time_up:
+            if "White" in result_text:
+                result_display = "White's Time is Up! Black Wins!"
+            else:
+                result_display = "Black's Time is Up! White Wins!"
+        else:
+            result_display = result_text
+            
+        result_surface = result_font.render(result_display, True, CHESS_DARK)
+        result_rect = result_surface.get_rect(center=(screen_w // 2, box_y + 140))  # Better positioned
         screen.blit(result_surface, result_rect)
-
-        button_width_end = 200
-        button_height_end = 50
-        button_spacing_end = 20
-
+        
+        # Chess-themed decorative elements with enhanced positioning
+        if is_checkmate:
+            # Draw crown symbols with enhanced positioning
+            crown_font = pygame.font.SysFont(None, 56)  # Larger font
+            crown_left = crown_font.render("KING", True, CHESS_GOLD)
+            crown_right = crown_font.render("KING", True, CHESS_GOLD)
+            screen.blit(crown_left, (box_x + 50, box_y + 70))  # Better positioned
+            screen.blit(crown_right, (box_x + box_width - 80, box_y + 70))  # Better positioned
+        elif is_stalemate:
+            # Draw bishop symbols for stalemate with enhanced positioning
+            piece_font = pygame.font.SysFont(None, 56)  # Larger font
+            piece_left = piece_font.render("BISHOP", True, CHESS_SILVER)
+            piece_right = piece_font.render("BISHOP", True, CHESS_SILVER)
+            screen.blit(piece_left, (box_x + 50, box_y + 70))  # Better positioned
+            screen.blit(piece_right, (box_x + box_width - 80, box_y + 70))  # Better positioned
+        elif is_draw or is_insufficient_material or is_fifty_moves or is_repetition:
+            # Draw rook symbols for draws with enhanced positioning
+            piece_font = pygame.font.SysFont(None, 56)  # Larger font
+            piece_left = piece_font.render("ROOK", True, CHESS_SILVER)
+            piece_right = piece_font.render("ROOK", True, CHESS_SILVER)
+            screen.blit(piece_left, (box_x + 50, box_y + 70))  # Better positioned
+            screen.blit(piece_right, (box_x + box_width - 80, box_y + 70))  # Better positioned
+        elif is_time_up:
+            # Draw clock symbols for time up with enhanced positioning
+            clock_font = pygame.font.SysFont(None, 56)  # Larger font
+            clock_left = clock_font.render("TIME", True, CHESS_GOLD)
+            clock_right = clock_font.render("TIME", True, CHESS_GOLD)
+            screen.blit(clock_left, (box_x + 50, box_y + 70))  # Better positioned
+            screen.blit(clock_right, (box_x + box_width - 80, box_y + 70))  # Better positioned
+        
+        # Enhanced buttons with chess theme and better positioning
+        button_width_end = 240  # Increased width
+        button_height_end = 65   # Increased height
+        button_spacing_end = 35  # Increased spacing between buttons
+        
+        # Play Again button with enhanced positioning
         play_again_rect = pygame.Rect(
             (screen_w - button_width_end) // 2,
-            box_y + 120,
+            box_y + 240,  # Better positioned
             button_width_end,
             button_height_end
         )
+        
+        # Main Menu button with enhanced positioning
         main_menu_rect = pygame.Rect(
             (screen_w - button_width_end) // 2,
             play_again_rect.bottom + button_spacing_end,
             button_width_end,
             button_height_end
         )
+        
+        # Exit button with enhanced positioning
         exit_rect = pygame.Rect(
             (screen_w - button_width_end) // 2,
             main_menu_rect.bottom + button_spacing_end,
             button_width_end,
             button_height_end
         )
-
+        
+        # Enhanced button styling with hover effects and chess theme
         mouse_pos = pygame.mouse.get_pos()
-        color_play_again = (90, 90, 90) if play_again_rect.collidepoint(mouse_pos) else (60, 60, 60)
-        color_main_menu = (90, 90, 90) if main_menu_rect.collidepoint(mouse_pos) else (60, 60, 60)
-        color_exit = (90, 90, 90) if exit_rect.collidepoint(mouse_pos) else (60, 60, 60)
-
-        pygame.draw.rect(screen, color_play_again, play_again_rect, border_radius=10)
-        pygame.draw.rect(screen, color_main_menu, main_menu_rect, border_radius=10)
-        pygame.draw.rect(screen, color_exit, exit_rect, border_radius=10)
-
-        text_play_again = font.render("Play Again", True, (255, 255, 255))
-        text_main_menu = font.render("Main Menu", True, (255, 255, 255))
-        text_exit = font.render("Exit Game", True, (255, 255, 255))
-
+        
+        # Play Again button with enhanced styling
+        if play_again_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, CHESS_GOLD, play_again_rect, border_radius=15)
+            pygame.draw.rect(screen, CHESS_DARK, play_again_rect, 4, border_radius=15)
+            # Add glow effect
+            glow_rect = pygame.Rect(play_again_rect.x - 3, play_again_rect.y - 3, 
+                                   play_again_rect.width + 6, play_again_rect.height + 6)
+            pygame.draw.rect(screen, CHESS_GOLD, glow_rect, border_radius=18)
+        else:
+            pygame.draw.rect(screen, CHESS_DARK, play_again_rect, border_radius=15)
+            pygame.draw.rect(screen, CHESS_GOLD, play_again_rect, 3, border_radius=15)
+        
+        # Main Menu button with enhanced styling
+        if main_menu_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, CHESS_SILVER, main_menu_rect, border_radius=15)
+            pygame.draw.rect(screen, CHESS_DARK, main_menu_rect, 4, border_radius=15)
+            # Add glow effect
+            glow_rect = pygame.Rect(main_menu_rect.x - 3, main_menu_rect.y - 3, 
+                                   main_menu_rect.width + 6, main_menu_rect.height + 6)
+            pygame.draw.rect(screen, CHESS_SILVER, glow_rect, border_radius=18)
+        else:
+            pygame.draw.rect(screen, CHESS_DARK, main_menu_rect, border_radius=15)
+            pygame.draw.rect(screen, CHESS_SILVER, main_menu_rect, 3, border_radius=15)
+        
+        # Exit button with enhanced styling
+        if exit_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, (220, 20, 60), exit_rect, border_radius=15)
+            pygame.draw.rect(screen, CHESS_DARK, exit_rect, 4, border_radius=15)
+            # Add glow effect
+            glow_rect = pygame.Rect(exit_rect.x - 3, exit_rect.y - 3, 
+                                   exit_rect.width + 6, exit_rect.height + 6)
+            pygame.draw.rect(screen, (220, 20, 60), glow_rect, border_radius=18)
+        else:
+            pygame.draw.rect(screen, CHESS_DARK, exit_rect, border_radius=15)
+            pygame.draw.rect(screen, (220, 20, 60), exit_rect, 3, border_radius=15)
+        
+        # Enhanced button text with chess symbols and better styling
+        button_font = pygame.font.SysFont(None, 34, bold=True)  # Larger font
+        
+        text_play_again = button_font.render("Play Again", True, CHESS_LIGHT)
+        text_main_menu = button_font.render("Main Menu", True, CHESS_LIGHT)
+        text_exit = button_font.render("Exit Game", True, CHESS_LIGHT)
+        
+        # Add text shadows for better readability
+        shadow_color = (0, 0, 0, 100)
+        shadow_play_again = button_font.render("Play Again", True, shadow_color)
+        shadow_main_menu = button_font.render("Main Menu", True, shadow_color)
+        shadow_exit = button_font.render("Exit Game", True, shadow_color)
+        
+        # Draw shadows
+        screen.blit(shadow_play_again, (play_again_rect.centerx - shadow_play_again.get_width()//2 + 1, 
+                                       play_again_rect.centery - shadow_play_again.get_height()//2 + 1))
+        screen.blit(shadow_main_menu, (main_menu_rect.centerx - shadow_main_menu.get_width()//2 + 1, 
+                                      main_menu_rect.centery - shadow_main_menu.get_height()//2 + 1))
+        screen.blit(shadow_exit, (exit_rect.centerx - shadow_exit.get_width()//2 + 1, 
+                                 exit_rect.centery - shadow_exit.get_height()//2 + 1))
+        
+        # Draw main text
         screen.blit(text_play_again, text_play_again.get_rect(center=play_again_rect.center))
         screen.blit(text_main_menu, text_main_menu.get_rect(center=main_menu_rect.center))
         screen.blit(text_exit, text_exit.get_rect(center=exit_rect.center))
-
+        
         return play_again_rect, main_menu_rect, exit_rect
 
     def format_time(seconds):
@@ -308,7 +486,7 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
                 if player_white_time <= 0:
                     player_white_time = 0
                     game_over_state = True
-                    game_result_text = "White's Time is Up! Black Wins!"
+                    game_result_text = "White's Time is Up! Black Wins by Time!"
                     if board_renderer.audio_manager:
                         board_renderer.audio_manager.play("checkmate")
             else:
@@ -316,7 +494,7 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
                 if player_black_time <= 0:
                     player_black_time = 0
                     game_over_state = True
-                    game_result_text = "Black's Time is Up! White Wins!"
+                    game_result_text = "Black's Time is Up! White Wins by Time!"
                     if board_renderer.audio_manager:
                         board_renderer.audio_manager.play("checkmate")
 
@@ -398,7 +576,24 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
         if chess_game.is_game_over() and not game_over_state:
             game_over_state = True
             outcome = chess_game.outcome()
-            if outcome:
+            
+            # Determine specific game end type for better theming
+            if chess_game.is_checkmate():
+                if outcome and outcome.winner == chess.WHITE:
+                    game_result_text = "White Wins by Checkmate!"
+                elif outcome and outcome.winner == chess.BLACK:
+                    game_result_text = "Black Wins by Checkmate!"
+                else:
+                    game_result_text = "Checkmate!"
+            elif chess_game.is_stalemate():
+                game_result_text = "Stalemate!"
+            elif chess_game.board.is_insufficient_material():
+                game_result_text = "Draw by Insufficient Material!"
+            elif chess_game.board.is_fifty_moves():
+                game_result_text = "Draw by Fifty-Move Rule!"
+            elif chess_game.board.is_repetition():
+                game_result_text = "Draw by Repetition!"
+            elif outcome:
                 if outcome.winner == chess.WHITE:
                     game_result_text = "White Wins!"
                 elif outcome.winner == chess.BLACK:
@@ -407,6 +602,7 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
                     game_result_text = "Draw!"
             else:
                 game_result_text = "Game Over!"
+                
             if board_renderer.audio_manager:
                 board_renderer.audio_manager.play("checkmate")
 
@@ -432,6 +628,11 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
                         handle_game_end_action("exit")
                         # sys.exit() is called inside handle_game_end_action, so no need for return here.
                 else:
+                    # Handle promotion dialog clicks first
+                    if board_renderer.is_promotion_active():
+                        if board_renderer.handle_promotion_click(event.pos):
+                            continue  # Skip other click handling if promotion was handled
+                    
                     if not local and current_ai_type == "stockfish":
                         if skill_rect.collidepoint(event.pos):
                             rel_x = max(0, min(skill_rect.width, event.pos[0] - skill_rect.x))
@@ -518,6 +719,11 @@ def main(FEN, local, selected_ai_type=None, time_control=None, white_time_left=N
 
         if game_over_state:
             draw_end_game_screen(game_result_text)
+
+        # Draw promotion dialog if active (must be drawn on main screen, not board surface)
+        if board_renderer.is_promotion_active():
+            board_renderer.promotion_dialog.screen = screen  # Set the main screen as target
+            board_renderer.promotion_dialog.draw()
 
         pygame.display.flip()
         clock.tick(60)

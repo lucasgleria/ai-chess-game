@@ -40,18 +40,18 @@
   - Display on-screen text messages: "White's Turn", "Black's Turn", "Check!", "Checkmate!", "Draw!".
 - [X] **2.B.3 Piece Animation:**
   - Implement smooth sliding animation for pieces (not "teleport").
-- [ ] **2.B.4 Game Sounds:**
+- [x] **2.B.4 Game Sounds:**
   - Integrate sounds for piece moves, captures, and check.
 
 ---
 
 ## Phase 3: Advanced Features and Polish
 
-- [ ] **3.B.1 Pawn Promotion:**
+- [X] **3.B.1 Pawn Promotion:**
   - Implement the UI for choosing the piece on pawn promotion (small pop-up window).
-- [ ] **3.B.2 End Game Screens:**
+- [X] **3.B.2 End Game Screens:**
   - Create dedicated screens for "Checkmate", "Draw", "Stalemate" with options for "New Game" or "Exit".
-- [ ] **3.B.3 General Visual Refinement:**
+- [x] **3.B.3 General Visual Refinement:**
   - Adjust colors, fonts, and layouts.
   - Consider additional visual themes (if time permits).
 - [ ] **3.B.4 Enhanced Audio Feedback:**

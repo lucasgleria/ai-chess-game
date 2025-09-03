@@ -5,7 +5,7 @@ import threading
 from src.ia.ai_base import BaseChessAI
 
 class StockfishAI(BaseChessAI):
-    def __init__(self, engine_path="engines/stockfish-windows-x86-64-avx2.exe", skill_level=10, thinking_time=1.0):
+    def __init__(self, engine_path="stockfish-windows-x86-64-avx2.exe", skill_level=10, thinking_time=1.0):
         self.engine_path = engine_path
         self.skill_level = skill_level  # 0-20
         self.thinking_time = thinking_time  # in seconds
