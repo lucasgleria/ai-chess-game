@@ -1,1 +1,12 @@
-{}
+{
+    "abacate": {
+        "FEN": "rnbqkb1r/pppppppp/7n/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 1 2",
+        "local": false,
+        "ai_type": "easy",
+        "skill_level": null,
+        "thinking_time": null,
+        "time_control": null,
+        "white_time_left": null,
+        "black_time_left": null
+    }
+}

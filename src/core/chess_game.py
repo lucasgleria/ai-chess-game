@@ -24,9 +24,9 @@ class ChessGame():
         Applies a move in UCI format (e.g., 'e2e4'). Returns True if the move is legal and applied.
         """
         move = chess.Move.from_uci(move_str)
-        if move:
+        if move and move in self.board.legal_moves:
             self.board.push(move)
-
+            return True
         return False
 
     def undo_move(self):

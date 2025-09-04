@@ -3,6 +3,120 @@ import chess
 import re 
 from src.core.move_validator import MoveValidator 
 
+class PromotionDialog:
+    """
+    Pop-up dialog for pawn promotion piece selection.
+    """
+    def __init__(self, screen, square_size, asset_manager, is_white_pawn):
+        self.screen = screen
+        self.square_size = square_size
+        self.asset_manager = asset_manager
+        
+        # Chess-themed colors
+        self.CHESS_BROWN = (139, 69, 19)
+        self.CHESS_CREAM = (245, 245, 220)
+        self.CHESS_DARK = (47, 79, 79)
+        self.CHESS_GOLD = (255, 215, 0)
+        self.CHESS_SILVER = (192, 192, 192)
+        self.CHESS_LIGHT = (240, 248, 255)
+        
+        # Piece options for promotion
+        self.pieces = ['queen', 'rook', 'bishop', 'knight']
+        
+        # Calculate dialog dimensions and position
+        dialog_width = 400
+        dialog_height = 150
+        dialog_x = (screen.get_width() - dialog_width) // 2
+        dialog_y = (screen.get_height() - dialog_height) // 2
+        
+        # Create piece selection buttons with improved positioning
+        button_width = 60
+        button_height = 60
+        spacing = 20
+        start_x = dialog_x + (dialog_width - (len(self.pieces) * (button_width + spacing) - spacing)) // 2
+        
+        self.piece_buttons = []
+        for i, piece in enumerate(self.pieces):
+            x = start_x + i * (button_width + spacing)
+            y = dialog_y + 60
+            self.piece_buttons.append({
+                'rect': pygame.Rect(x, y, button_width, button_height),
+                'piece': piece,
+                'asset_name': f"{'white' if is_white_pawn else 'black'}_{piece}"
+            })
+    
+    def draw(self):
+        """Draw the promotion dialog with improved chess theme and positioning."""
+        # Create semi-transparent overlay with chess pattern
+        overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        
+        # Add chess board pattern to overlay
+        pattern_size = 40
+        for y in range(0, self.screen.get_height(), pattern_size):
+            for x in range(0, self.screen.get_width(), pattern_size):
+                color = self.CHESS_BROWN if (x + y) // pattern_size % 2 == 0 else self.CHESS_CREAM
+                pattern_surface = pygame.Surface((pattern_size, pattern_size), pygame.SRCALPHA)
+                pattern_surface.fill((*color, 30))
+                overlay.blit(pattern_surface, (x, y))
+        
+        self.screen.blit(overlay, (0, 0))
+        
+        # Draw main dialog box with improved positioning
+        dialog_width = 400
+        dialog_height = 150
+        dialog_x = (self.screen.get_width() - dialog_width) // 2
+        dialog_y = (self.screen.get_height() - dialog_height) // 2
+        
+        # Draw dialog background with chess theme
+        pygame.draw.rect(self.screen, self.CHESS_DARK, (dialog_x, dialog_y, dialog_width, dialog_height), border_radius=15)
+        pygame.draw.rect(self.screen, self.CHESS_GOLD, (dialog_x, dialog_y, dialog_width, dialog_height), 3, border_radius=15)
+        
+        # Draw title
+        title_font = pygame.font.SysFont(None, 36, bold=True)
+        title_text = title_font.render("Choose Promotion Piece", True, self.CHESS_GOLD)
+        title_rect = title_text.get_rect(center=(dialog_x + dialog_width // 2, dialog_y + 25))
+        self.screen.blit(title_text, title_rect)
+        
+        # Draw piece selection buttons with improved spacing
+        button_width = 60
+        button_height = 60
+        spacing = 20
+        start_x = dialog_x + (dialog_width - (len(self.pieces) * (button_width + spacing) - spacing)) // 2
+        
+        for i, button in enumerate(self.pieces):
+            x = start_x + i * (button_width + spacing)
+            y = dialog_y + 60
+            
+            # Draw button background
+            pygame.draw.rect(self.screen, self.CHESS_SILVER, button['rect'], border_radius=8)
+            pygame.draw.rect(self.screen, self.CHESS_GOLD, button['rect'], 2, border_radius=8)
+            
+            # Draw piece image
+            if hasattr(self.asset_manager, 'get_piece'):
+                piece_image = self.asset_manager.get_piece(button['asset_name'])
+                if piece_image:
+                    # Scale image to fit button
+                    scaled_image = pygame.transform.scale(piece_image, (button_width - 10, button_height - 10))
+                    image_rect = scaled_image.get_rect(center=button['rect'].center)
+                    self.screen.blit(scaled_image, image_rect)
+    
+    def handle_click(self, pos):
+        """Handle mouse click on the dialog."""
+        # Adjust position for dialog surface
+        adjusted_pos = (pos[0] - self.dialog_x, pos[1] - self.dialog_y)
+        
+        for button in self.piece_buttons:
+            if button['rect'].collidepoint(adjusted_pos):
+                self.selected_piece = button['piece']
+                return True  # Dialog should close
+        
+        return False  # Dialog should stay open
+    
+    def get_selected_piece(self):
+        """Return the selected piece for promotion."""
+        return self.selected_piece
+
 class BoardRenderer():
     def __init__(self, screen, square_size, chess_game_instance, local, asset_manager=None, audio_manager=None):
         self.screen = screen
@@ -31,6 +145,10 @@ class BoardRenderer():
         self.mouse_pos = (0, 0)     # Current mouse position on the screen
 
         self.last_move = None # To highlight the last move
+        
+        # Promotion dialog state
+        self.promotion_dialog = None
+        self.pending_promotion_move = None
 
         # Mapping of FEN symbols to asset names
         self.piece_map = {
@@ -66,11 +184,37 @@ class BoardRenderer():
                 self.test_board[row_idx][col_idx] = self.piece_map.get(char)
                 col_idx += 1
 
-    # Draws a centered message at the top of the board
-    def draw_status_message(self, message, color=(255, 255, 255)):
-        text_surface = self.status_font.render(message, True, color)
-        screen_width = self.screen.get_width()
-        text_rect = text_surface.get_rect(center=(screen_width // 2, 30))
+    # Draws a centered message at the top of the board with chess theme
+    def draw_status_message(self, message):
+        """Draw status message with improved positioning and styling"""
+        # Create a semi-transparent background for better readability
+        font = pygame.font.SysFont(None, 32, bold=True)
+        text_surface = font.render(message, True, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        
+        # Position at the top center of the board
+        board_offset_x = (self.screen.get_width() - 8 * self.square_size) // 2
+        board_offset_y = (self.screen.get_height() - 8 * self.square_size) // 2
+        
+        # Create background rectangle for better visibility
+        padding = 10
+        bg_rect = pygame.Rect(
+            board_offset_x + (8 * self.square_size - text_rect.width) // 2 - padding,
+            board_offset_y - 50,  # Position above the board
+            text_rect.width + 2 * padding,
+            text_rect.height + 2 * padding
+        )
+        
+        # Draw semi-transparent background
+        bg_surface = pygame.Surface((bg_rect.width, bg_rect.height), pygame.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 150))  # Semi-transparent black
+        self.screen.blit(bg_surface, bg_rect)
+        
+        # Draw border
+        pygame.draw.rect(self.screen, (255, 215, 0), bg_rect, 2, border_radius=8)
+        
+        # Draw text
+        text_rect.center = bg_rect.center
         self.screen.blit(text_surface, text_rect)
 
     def draw_board(self):
@@ -92,7 +236,7 @@ class BoardRenderer():
                     to_col_last = chess.parse_square(to_square_uci) % 8
                     to_row_last = 7 - (chess.parse_square(to_square_uci) // 8)
 
-                    highlight_color = (200, 200, 0, 100) # Semi-transparent yellow
+                    highlight_color = (255, 215, 0, 120) # Semi-transparent gold
                     s = pygame.Surface((self.square_size, self.square_size), pygame.SRCALPHA)
                     s.fill(highlight_color)
 
@@ -103,7 +247,7 @@ class BoardRenderer():
 
                 # Highlight selected square
                 if self.selected_square and self.selected_square == (r, c):
-                    pygame.draw.rect(self.screen, (255, 255, 0), rect, 3) # Yellow, 3px border
+                    pygame.draw.rect(self.screen, (255, 215, 0), rect, 4) # Gold border
 
                 # Draw pieces
                 piece_symbol = self.test_board[r][c]
@@ -135,9 +279,9 @@ class BoardRenderer():
                     move_row * self.square_size + self.square_size // 2,
                 )
                 radius = self.square_size // 6
-                pygame.draw.circle(self.screen, (0, 255, 0, 100), center, radius) # Semi-transparent green
+                pygame.draw.circle(self.screen, (34, 139, 34, 150), center, radius) # Semi-transparent forest green
 
-        # Displays status messages at the top
+        # Displays status messages at the top - Improved positioning
         if self.chess_game.board.is_checkmate():
             message = "Checkmate!"
         elif self.chess_game.board.is_stalemate() or self.chess_game.board.is_insufficient_material():
@@ -148,6 +292,8 @@ class BoardRenderer():
             message = "Black's Turn" if self.chess_game.board.turn == chess.BLACK else "White's Turn"
 
         self.draw_status_message(message)
+        
+        # Note: Promotion dialog is now drawn on the main screen in main.py
 
     def handle_click(self, pos):
         col = pos[0] // self.square_size
@@ -192,40 +338,79 @@ class BoardRenderer():
 
             move_uci = from_uci + to_uci
 
-            # Promotion logic (simple example: always queen)
-            # Checks if the piece is a pawn and is on the last rank
+            # Check if this is a pawn promotion move
             piece = self.chess_game.board.piece_at(chess.parse_square(from_uci))
+            is_promotion = False
             if piece and piece.piece_type == chess.PAWN:
                 if (piece.color == chess.WHITE and target_row == 0) or \
                    (piece.color == chess.BLACK and target_row == 7):
-                    move_uci += 'q' # Promotes to queen by default
+                    is_promotion = True
 
-            if self.chess_game.is_legal_move(move_uci):
-                # Checks if a capture occurred before making the move
-                captured_piece_before_move = self.chess_game.board.piece_at(chess.parse_square(to_uci))
-
-                self.chess_game.make_move(move_uci) # Applies the move to the main board
-                self.last_move = move_uci # Stores the last move for highlighting
-                self.load_pieces() # Reloads pieces to reflect the new state
-
-                # Plays move or capture sound
-                if self.audio_manager:
-                    if captured_piece_before_move:
-                        self.audio_manager.play("capture")
-                    else:
-                        self.audio_manager.play("move")
-                
-                # Calls MoveValidator to check game state
-                self.move_val.validate_move() # THIS IS THE CRITICAL LINE!
+            if is_promotion:
+                # Store the pending promotion move and show dialog
+                self.pending_promotion_move = move_uci
+                self.promotion_dialog = PromotionDialog(
+                    self.screen, 
+                    self.square_size, 
+                    self.asset_manager, 
+                    piece.color == chess.WHITE
+                )
             else:
-                # Illegal move, the piece will be redrawn in the original position
-                pass
+                # Regular move processing
+                self._process_move(move_uci)
 
         # Clears drag and selection state
         self.selected_square = None
         self.dragging_piece = None
         self.dragging_piece_original_pos = None
-        # self.valid_moves = [] # No need to clear here, it's cleared in handle_click if selection changes
+
+    def _process_move(self, move_uci):
+        """Process a move and apply it to the board."""
+        if self.chess_game.is_legal_move(move_uci):
+            # Checks if a capture occurred before making the move
+            captured_piece_before_move = self.chess_game.board.piece_at(chess.parse_square(move_uci[2:4]))
+
+            self.chess_game.make_move(move_uci) # Applies the move to the main board
+            self.last_move = move_uci # Stores the last move for highlighting
+            self.load_pieces() # Reloads pieces to reflect the new state
+
+            # Plays move or capture sound
+            if self.audio_manager:
+                if captured_piece_before_move:
+                    self.audio_manager.play("capture")
+                else:
+                    self.audio_manager.play("move")
+            
+            # Calls MoveValidator to check game state
+            self.move_val.validate_move() # THIS IS THE CRITICAL LINE!
+        else:
+            # Illegal move, the piece will be redrawn in the original position
+            pass
+
+    def handle_promotion_click(self, pos):
+        """Handle clicks when promotion dialog is active."""
+        if self.promotion_dialog:
+            if self.promotion_dialog.handle_click(pos):
+                # User selected a piece, complete the promotion
+                selected_piece = self.promotion_dialog.get_selected_piece()
+                promotion_move = self.pending_promotion_move + selected_piece[0]  # Add piece letter
+                
+                self._process_move(promotion_move)
+                
+                # Clear promotion state
+                self.promotion_dialog = None
+                self.pending_promotion_move = None
+                return True  # Indicate that the click was handled
+        return False  # Indicate that the click was not handled
+
+    def is_promotion_active(self):
+        """Check if promotion dialog is currently active."""
+        return self.promotion_dialog is not None
+
+    def draw_promotion_dialog(self):
+        """Draw the promotion dialog if active."""
+        if self.promotion_dialog:
+            self.promotion_dialog.draw()
 
     def update_mouse_pos(self, pos):
         self.mouse_pos = pos
