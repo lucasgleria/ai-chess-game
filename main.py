@@ -48,11 +48,12 @@ def run_main():
 
     # Instance of SaveManager to be used in the menu
     save_manager_instance = SaveManager()
+    asset_manager = AssetManager()
 
     # Start the main loop of the game modes menu
     # We pass the 'screen' surface and the 'save_manager_instance' instance
     # to the GameModes class, which will now manage the main menu.
-    GameModes(screen, save_manager_instance) 
+    GameModes(screen, save_manager_instance, asset_manager) 
 
     # Quit Pygame only when the main program finishes completely
     pygame.quit() 

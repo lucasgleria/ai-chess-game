@@ -3,12 +3,14 @@ import sys
 import chess
 from src.main import main # Imports the main function from src/main.py
 from src.data.Save_Manager import SaveManager # Imports the SaveManager
+from src.ui.asset_manager import AssetManager
 from src.utils import load_config
 
 class GameModes:
-    def __init__(self, screen, save_manager):
+    def __init__(self, screen, save_manager, asset_manager):
         self.screen = screen
         self.save_manager = save_manager
+        self.asset_manager = asset_manager
 
         self.screen_width, self.screen_height = self.screen.get_size()
         self.font = pygame.font.SysFont(None, 36)
@@ -208,21 +210,21 @@ class GameModes:
         self._draw_chess_decorations()
         
         # Enhanced title with chess theme - Better positioning
-        title_font = pygame.font.SysFont(None, 72, bold=True)
+        title_font = pygame.font.SysFont(None, self.screen_height // 9, bold=True)
         title_text = title_font.render("AI Chess Game", True, self.CHESS_GOLD)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 4))
         self.screen.blit(title_text, title_rect)
         
         # Subtitle - Better positioning
-        subtitle_font = pygame.font.SysFont(None, 28)  # Slightly larger font
+        subtitle_font = pygame.font.SysFont(None, self.screen_height // 24)  # Slightly larger font
         subtitle_text = subtitle_font.render("Strategic Battle of Minds", True, self.CHESS_SILVER)
         subtitle_rect = subtitle_text.get_rect(center=(self.screen_width // 2, title_rect.bottom + 15))
         self.screen.blit(subtitle_text, subtitle_rect)
 
         # Improved button layout with better spacing
-        button_width = 300  # Increased width for better proportions
-        button_height = 75  # Increased height for better proportions
-        spacing = 30        # Increased spacing between buttons
+        button_width = self.screen_width / 3  # Increased width for better proportions
+        button_height = self.screen_height / 13  # Increased height for better proportions
+        spacing = 25       # Increased spacing between buttons
         start_y = self.screen_height // 2 - (button_height * 2.5 + spacing * 2) / 2
 
         # Player vs Player Button
@@ -257,12 +259,12 @@ class GameModes:
 
     def _draw_chess_decorations(self):
         """Draw enhanced decorative chess pieces with better positioning and effects"""
-        piece_font = pygame.font.SysFont(None, 48)  # Adjusted font size for text
+        """piece_font = pygame.font.SysFont(None, self.screen_height // 14)  # Adjusted font size for text
         pieces = ["KING", "QUEEN", "ROOK", "BISHOP", "KNIGHT", "PAWN"]
         colors = [self.CHESS_GOLD, self.CHESS_SILVER, self.CHESS_GOLD, self.CHESS_SILVER, self.CHESS_GOLD, self.CHESS_SILVER]
         
         # Draw pieces in a row at the top with improved spacing and positioning
-        piece_spacing = 120  # Increased spacing for text elements
+        piece_spacing = 140  # Increased spacing for text elements
         start_x = (self.screen_width - (len(pieces) * piece_spacing)) // 2
         
         for i, (piece, color) in enumerate(zip(pieces, colors)):
@@ -279,7 +281,28 @@ class GameModes:
             # Add subtle highlight effect
             highlight_surface = piece_font.render(piece, True, (255, 255, 255, 50))
             highlight_rect = highlight_surface.get_rect(center=(start_x + i * piece_spacing - 1, 78))
-            self.screen.blit(highlight_surface, highlight_rect)
+            self.screen.blit(highlight_surface, highlight_rect)"""
+
+        pieces_pos = {
+            "black_pawn": {"pos": (self.screen_width // 17, self.screen_height // 3.37), "rotation": 45},
+            "white_rook": {"pos": (self.screen_width // 1.33, self.screen_height // 8.4), "rotation": -70},
+            "black_bishop": {"pos": (self.screen_width // 1.2, self.screen_height // 2.25), "rotation": 30},
+            "white_king": {"pos": (self.screen_width // 1.34, self.screen_height // 1.35), "rotation": 60},
+            "white_knight": {"pos": (self.screen_width // 3.28, self.screen_height // 13.5), "rotation": -10},
+            "black_queen": {"pos": (self.screen_width // 6.4, self.screen_height // 1.8), "rotation": -30}
+        }
+
+
+        for key, value in pieces_pos.items():
+            piece_image = self.asset_manager.get_piece(key)
+
+            if piece_image:
+                resized_image = pygame.transform.scale(piece_image, (self.screen_width // 25.6, self.screen_height // 7.5))
+                rot = pygame.transform.rotate(resized_image, value["rotation"])
+                self.screen.blit(rot, value["pos"])
+            
+
+        
 
     def _draw_pvp_setup_menu(self):
         # Draw decorative elements
@@ -301,13 +324,14 @@ class GameModes:
 
         # Start Game Button - Better positioned
         self.start_game_button_rect = pygame.Rect(
-            (self.screen_width - 250) // 2, self.screen_height - 150, 250, 70
+            (self.screen_width - (self.screen_width // 5.12)) // 2, self.screen_height - (self.screen_height // 3.75), self.screen_height // 2.7,
+              self.screen_height // 9.2
         )
         self._draw_button(self.start_game_button_rect, "Start Game")
 
         # Back Button - Better positioned
         self.back_button_rect = pygame.Rect(
-            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+            (self.screen_width - (self.screen_width // 6.4)) // 2, self.start_game_button_rect.bottom + 25, self.screen_height // 3.3, self.screen_height // 11.25
         )
         self._draw_button(self.back_button_rect, "Back")
 
@@ -336,13 +360,14 @@ class GameModes:
 
         # Start Game Button - Better positioned
         self.start_game_button_rect = pygame.Rect(
-            (self.screen_width - 250) // 2, self.screen_height - 150, 250, 70
+            (self.screen_width - (self.screen_width // 5.12)) // 2, self.screen_height - (self.screen_height // 3.75), self.screen_height // 2.7,
+              self.screen_height // 9.2
         )
         self._draw_button(self.start_game_button_rect, "Start Game")
 
         # Back Button - Better positioned
         self.back_button_rect = pygame.Rect(
-            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+            (self.screen_width - (self.screen_width // 6.4)) // 2, self.start_game_button_rect.bottom + 25, self.screen_height // 3.3, self.screen_height // 11.25
         )
         self._draw_button(self.back_button_rect, "Back")
 
@@ -398,9 +423,10 @@ class GameModes:
 
         # Back Button - Better positioned
         self.back_button_rect_load = pygame.Rect(
-            (self.screen_width - 200) // 2, self.screen_height - 80, 200, 60
+            (self.screen_width - (self.screen_width // 6.4)) // 2, self.screen_height - 80, self.screen_height // 3.3, self.screen_height // 11.25
         )
         self._draw_button(self.back_button_rect_load, "Back")
+
 
 
     def _draw_button(self, rect, text, selected=False):
@@ -494,8 +520,8 @@ class GameModes:
         return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)
 
     def _get_time_control_button_rect(self, index):
-        button_width = 180  # Increased width for better text display
-        button_height = 60   # Increased height for better proportions
+        button_width = self.screen_width // 7.111  # Increased width for better text display
+        button_height = self.screen_height // 11.25   # Increased height for better proportions
         spacing = 20         # Increased spacing between buttons
         x_start = self.screen_width // 2 - (len(self.time_controls) * (button_width + spacing) - spacing) // 2
         return pygame.Rect(x_start + index * (button_width + spacing), 200, button_width, button_height)

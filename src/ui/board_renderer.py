@@ -224,6 +224,7 @@ class BoardRenderer():
                 color = self.light_color if (r + c) % 2 == 0 else self.dark_color
                 rect = pygame.Rect(c * self.square_size, r * self.square_size, self.square_size, self.square_size)
                 pygame.draw.rect(self.screen, color, rect)
+                
 
                 # Highlight the last move
                 if self.last_move:
