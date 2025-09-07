@@ -129,11 +129,28 @@ _English:_
 ![diagrama-de-fluxo](readme-files/diagrama-de-fluxo-en.png)
 
 ## 🤝 Contribution
-This project follows the "divide and conquer" methodology to enable teamwork. Please follow the contribution guidelines:
-1. Branching: Create a new branch for each new feature or bug fix (ex: feature/main-menu, bugfix/invalid-move).
-2. Commits: Make small and atomic commits with clear and descriptive messages.
-3. Pull Requests: Send Pull Requests to the main branch (or develop, if created) for review.
-4. Communication: Keep in touch with the team through the defined communication channel to discuss progress and resolve blockers.
+
+Contributions are welcome! Follow these steps:
+
+### **1. Report Bugs**
+- Open an [issue](https://github.com/lucasgleria/practicing-etl-sql/issues) on GitHub
+- Describe the problem in detail
+- Include logs and screenshots if possible
+
+### **2. Suggest Improvements**
+- Submit ideas through issues
+- Propose new features
+- Discuss architectural improvements
+
+### **3. Develop**
+- Fork the project
+- Create a branch (`git checkout -b feature/new-feature`)
+- Make your changes following the project standards
+- Add tests for new features
+- Commit (`git commit -m ‘feat: new feature’)
+- Send a Pull Request
 
 ## 📞 Contact
-For questions, suggestions, or issues, contact lucasgleria or open an issue in the repository.
+  - **Author**: [Lucas Leria](https://www.google.com/search?q=https://github.com/lucasgleria)
+  - **Co-Author**: [Hamza Nouman](https://www.google.com/search?q=https://github.com/HamzaNouman)
+  - **Co-Author**: [Eduardo Antônio](https://www.google.com/search?q=https://github.com/eduhantonio)
