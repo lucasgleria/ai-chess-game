@@ -133,7 +133,7 @@ _English:_
 Contributions are welcome! Follow these steps:
 
 ### **1. Report Bugs**
-- Open an [issue](https://github.com/lucasgleria/practicing-etl-sql/issues) on GitHub
+- Open an [issue](https://github.com/lucasgleria/ai-chess-game/issues) on GitHub
 - Describe the problem in detail
 - Include logs and screenshots if possible
 
